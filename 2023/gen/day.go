@@ -151,9 +151,13 @@ func getInput(day int) ([]byte, error) {
 		return nil, err
 	}
 
+	token, ok := os.LookupEnv("AOC_TOKEN")
+	if !ok {
+		panic("Set AOC_TOKEN in env")
+	}
 	sessionToken := http.Cookie{
 		Name:  "session",
-		Value: "53616c7465645f5f90c0d0180f0701e28e794d8085ac9372361c2f1b4a432000bc0ee061a25345e4b68147a447ad3816b89d2e1a265a0821e744be32e6d7dd61",
+		Value: token,
 	}
 	req.AddCookie(&sessionToken)
 
