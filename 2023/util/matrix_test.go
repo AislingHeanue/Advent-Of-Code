@@ -23,8 +23,8 @@ func TestMatrix(t *testing.T) {
 
 func TestThreeMatrix(t *testing.T) {
 	go AwaitClosure()
-	r := 50
-	m := NewThreeMatrix[int](2*r, 2*r, 2*r)
+	r := 10
+	m := NewThreeMatrix[int](2*r+1, 2*r+1, 2*r+1)
 	m.SetByRule(func(z, y, x int) int {
 		return min((x-r)*(x-r)+(y-r)*(y-r)+(z-r)*(z-r), r*r)
 	})

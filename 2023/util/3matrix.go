@@ -89,7 +89,7 @@ func (m *ThreeMatrix[V]) PrintEvenlySpaced(delimiter string) {
 		for y := 0; y < m.GetHeight(); y++ {
 			for x := 0; x < m.GetWidth(); x++ {
 				leftSpacing = maxLength - len(fmt.Sprint(m.Get(z, y, x)))
-				fmt.Printf("%*s%v%s", leftSpacing, "", (*m)[y][x], delimiter)
+				fmt.Printf("%*s%v%s", leftSpacing, "", (*m)[z][y][x], delimiter)
 			}
 			fmt.Printf("\n")
 		}
