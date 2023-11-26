@@ -34,7 +34,7 @@ func (di *DrawInstance) Draw(screen *ebiten.Image) {
 }
 
 func (di *DrawInstance) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	if Image == nil {
+	if di.Image == nil {
 		return 1, 1
 	}
 	return di.Image.Bounds().Dx(), di.Image.Bounds().Dy()
