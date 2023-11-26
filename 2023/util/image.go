@@ -47,9 +47,8 @@ func EbitenSetup() {
 	// go autoCloseWindow(1 * time.Second)
 }
 
-// func autoCloseWindow(delay time.Duration) {
-// 	time.Sleep(delay)
-// 	if !WindowBeingUsed {
-// 		close(WindowClosureChan)
-// 	}
-// }
+func AwaitClosure() {
+	if WindowBeingUsed {
+		<-WindowClosureChan
+	}
+}

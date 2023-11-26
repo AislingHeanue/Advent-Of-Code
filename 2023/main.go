@@ -11,11 +11,9 @@ import (
 //go:generate go run ./gen
 func main() {
 	util.EbitenSetup()
+	defer util.AwaitClosure()
 	if err := cmd.CreateCommand().Execute(); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
-	}
-	if util.WindowBeingUsed {
-		<-util.WindowClosureChan
 	}
 }

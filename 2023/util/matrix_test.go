@@ -9,14 +9,8 @@ func init() {
 	WindowBeingUsed = true
 }
 
-func awaitClosure() {
-	if WindowBeingUsed {
-		<-WindowClosureChan
-	}
-}
-
 func TestMatrix(t *testing.T) {
-	defer awaitClosure()
+	defer AwaitClosure()
 
 	m := NewMatrix[int](40, 40)
 	m.SetByRule(func(y, x int) int {
