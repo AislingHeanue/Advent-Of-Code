@@ -96,7 +96,7 @@ func (m *Matrix[V]) ToImage() image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, m.GetWidth(), m.GetHeight()))
 	for x := 0; x < m.GetWidth(); x++ {
 		for y := 0; y < m.GetHeight(); y++ {
-			img.Set(x, y, ColourFunction(2*tMap[m.Get(y, x)]))
+			img.Set(x, y, ColourFunction(tMap[m.Get(y, x)]))
 		}
 	}
 

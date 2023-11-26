@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"image/color"
-	"math"
 )
 
 func Between[V cmp.Ordered](minimum, value, maximum V) V {
@@ -18,10 +17,15 @@ func Between[V cmp.Ordered](minimum, value, maximum V) V {
 // works best when provided a value of t between zero and one
 // for the full spectrum, use 0 and 2 instead
 func ColourFunction(t float64) color.Color {
-	return color.RGBA{
-		R: uint8(math.Min(255, (128 * (1 + math.Sin(float64(t)*math.Pi))))),
-		G: uint8(math.Min(255, (128 * (1 + math.Sin((2*math.Pi/3)+float64(t)*math.Pi))))),
-		B: uint8(math.Min(255, (128 * (1 + math.Sin((4*math.Pi/3)+float64(t)*math.Pi))))),
-		A: 255,
+	if t <= 0.2 {
+		return color.RGBA{0, uint8(1275 * t), 255, 255}
+	} else if t <= 0.4 {
+		return color.RGBA{0, 255, uint8(1275 * (0.4 - t)), 0}
+	} else if t <= 0.6 {
+		return color.RGBA{uint8(1275 * (t - 0.4)), 255, 0, 255}
+	} else if t <= 0.8 {
+		return color.RGBA{255, uint8(1275 * (0.8 - t)), 0, 255}
+	} else {
+		return color.RGBA{255, 0, uint8(1275 * (t - 0.8)), 255}
 	}
 }
