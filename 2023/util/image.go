@@ -25,13 +25,18 @@ func (di *DrawInstance) Update() error {
 }
 
 func (di *DrawInstance) Draw(screen *ebiten.Image) {
-	screen.DrawImage(
-		ebiten.NewImageFromImage(di.Image),
-		&ebiten.DrawImageOptions{},
-	)
+	if Image != nil {
+		screen.DrawImage(
+			ebiten.NewImageFromImage(di.Image),
+			&ebiten.DrawImageOptions{},
+		)
+	}
 }
 
 func (di *DrawInstance) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	if Image == nil {
+		return 1, 1
+	}
 	return di.Image.Bounds().Dx(), di.Image.Bounds().Dy()
 }
 
@@ -51,4 +56,5 @@ func AwaitClosure() {
 	if WindowBeingUsed {
 		<-WindowClosureChan
 	}
+	WindowBeingUsed = false
 }

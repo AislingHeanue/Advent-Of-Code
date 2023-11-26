@@ -2,6 +2,7 @@ package util
 
 import (
 	"testing"
+	"time"
 )
 
 func init() {
@@ -18,4 +19,23 @@ func TestMatrix(t *testing.T) {
 	})
 	m.PrintEvenlySpaced(", ")
 	m.Draw()
+}
+
+func TestThreeMatrix(t *testing.T) {
+	go AwaitClosure()
+	r := 50
+	m := NewThreeMatrix[int](2*r, 2*r, 2*r)
+	m.SetByRule(func(z, y, x int) int {
+		return min((x-r)*(x-r)+(y-r)*(y-r)+(z-r)*(z-r), r*r)
+	})
+	// m.PrintEvenlySpaced(", ")
+	for {
+		for z := 0; z < 2*r; z++ {
+			if !WindowBeingUsed {
+				return
+			}
+			m.Draw(z)
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
 }

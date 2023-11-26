@@ -29,11 +29,9 @@ func (m *Matrix[V]) Clear() {
 }
 
 func (m *Matrix[V]) Fill(v V) {
-	for y := 0; y < m.GetHeight(); y++ {
-		for x := 0; x < m.GetWidth(); x++ {
-			(*m)[y][x] = v
-		}
-	}
+	m.SetByRule(func(y, x int) V {
+		return v
+	})
 }
 
 func (m *Matrix[V]) Set(y, x int, v V) {
@@ -50,6 +48,13 @@ func (m *Matrix[V]) SetByRule(f func(y int, x int) V) {
 			m.Set(y, x, f(y, x))
 		}
 	}
+}
+
+func (m *Matrix[V]) Transpose() Matrix[V] {
+	n := Map[V](*m, func(y, x int, v V) V {
+		return (*m)[x][y]
+	})
+	return n
 }
 
 func (m *Matrix[V]) Print(delimiter string) {
@@ -116,10 +121,10 @@ func (m *Matrix[V]) Unique() []V {
 	return keys
 }
 
-func Map[K, V cmp.Ordered](m Matrix[K], f func(value K, y int, x int) V) Matrix[V] {
+func Map[K, V cmp.Ordered](m Matrix[K], f func(y int, x int, value K) V) Matrix[V] {
 	n := NewMatrix[V](m.GetHeight(), m.GetWidth())
 	n.SetByRule(func(y, x int) V {
-		return f(m.Get(y, x), y, x)
+		return f(y, x, m.Get(y, x))
 	})
 
 	return n
