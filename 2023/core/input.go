@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/spf13/viper"
 )
 
@@ -76,16 +77,14 @@ func (c *Input) LineSlice() (result []string) {
 }
 
 // turn the input into a matrix
-// func (c *Input) TileMap() *TileMap {
-// 	lines := c.LineSlice()
+func (c *Input) TileMap() util.Matrix[rune] {
+	lines := c.LineSlice()
 
-// 	m := NewTileMap(len(lines[0]), len(lines))
+	m := util.NewMatrix[rune](len(lines), len(lines[0]))
 
-// 	for row, line := range lines {
-// 		for column, tile := range line {
-// 			m.SetTile(column, row, tile)
-// 		}
-// 	}
+	m.SetByRule(func(y, x int) rune {
+		return rune(lines[y][x])
+	})
 
-// 	return m
-// }
+	return m
+}
