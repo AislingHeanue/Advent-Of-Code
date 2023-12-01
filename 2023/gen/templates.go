@@ -26,9 +26,9 @@ func CreateCommand() *cobra.Command {
 	var startTime time.Time
 
 	root := &cobra.Command{
-		Use:     "aoc",
+		Use:     "2023",
 		Short:   "Advent of Code 2023",
-		Long:    "Go implementation of my solutions for the 2023 Advent of Code",
+		Long:    "Go implementation of my solutions for the 2023 Advent of Code\nGeneration template provided by github.com/nlowe",
 		Example: "go run main.go 1a",
 		Args:    cobra.ExactArgs(1),
 		PersistentPreRun: func(_ *cobra.Command, _ []string) {
