@@ -31,14 +31,12 @@ func partB(challenge *core.Input) int {
 				}
 				lastNumber = int(letter - '0')
 			} else {
-				smallerString := line[i:min(i+5, len(line))]
-				for i, num := range numberList {
-					if smallerString[:min(len(smallerString), len(num))] == num {
-						fmt.Printf("Found %q in %s\n", num, smallerString)
+				for j, num := range numberList {
+					if line[i:min(len(line), i+len(num))] == num {
 						if firstNumber == -1 {
-							firstNumber = i
+							firstNumber = j
 						}
-						lastNumber = i
+						lastNumber = j
 					}
 				}
 
