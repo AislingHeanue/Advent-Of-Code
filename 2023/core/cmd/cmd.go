@@ -8,13 +8,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
-	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day1"
 	
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day1"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day2"
 )
 	
 
 func addDays(root *cobra.Command) {
 	day1.AddCommandsTo(root)
+	day2.AddCommandsTo(root)
 }
 
 
@@ -36,7 +38,6 @@ func CreateCommand() *cobra.Command {
 	}
 
 	util.WindowBeingUsed = false
-
 
 	addDays(root)
 
