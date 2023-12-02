@@ -39,7 +39,6 @@ func partB(challenge *core.Input) int {
 						lastNumber = j
 					}
 				}
-
 			}
 		}
 		total += 10*firstNumber + lastNumber

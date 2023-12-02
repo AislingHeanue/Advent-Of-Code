@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	{{ range $day := seq 1 .N }}
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day{{ $day }}"
 	{{- end }}
@@ -29,7 +31,7 @@ func CreateCommand() *cobra.Command {
 		Use:     "2023",
 		Short:   "Advent of Code 2023",
 		Long:    "Go implementation of my solutions for the 2023 Advent of Code\nGeneration template provided by github.com/nlowe",
-		Example: "go run main.go 1a",
+		Example: "go run . 1a",
 		Args:    cobra.ExactArgs(1),
 		PersistentPreRun: func(_ *cobra.Command, _ []string) {
 			startTime = time.Now()
@@ -38,6 +40,8 @@ func CreateCommand() *cobra.Command {
 			fmt.Printf("Time: %v\n", time.Since(startTime))
 		},
 	}
+
+	util.WindowBeingUsed = false
 
 	addDays(root)
 
