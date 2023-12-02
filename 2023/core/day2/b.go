@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 	"github.com/spf13/cobra"
@@ -22,29 +21,25 @@ func bCommand() *cobra.Command {
 
 func partB(challenge *core.Input) int {
 	total := 0
-	re, err := regexp.Compile(` (\d+) (red|green|blue)`)
-	if err != nil {
-		panic(err)
-	}
+	re := regexp.MustCompile(`(\d+) ([a-z]+)(?:, (\d+) ([a-z]+))?(?:, (\d+) ([a-z]+))?(?:;|\z)`)
 	for _, line := range challenge.LineSlice() {
 		counts := map[string]int{
 			"red":   0,
 			"green": 0,
 			"blue":  0,
 		}
-		parts := strings.Split(line, ":")
-		if err != nil {
-			panic(err)
-		}
-		turns := strings.Split(parts[1], ";")
+		turns := re.FindAllStringSubmatch(line, -1)
 		for _, turn := range turns {
-			items := re.FindAllStringSubmatch(turn, -1)
-			for _, item := range items {
-				num, err := strconv.Atoi(item[1])
-				if err != nil {
-					panic(err)
+			// format of `turn`: {(full match), digit 1, colour 1, digit 2, colour 2, digit 3, colour 3}
+			// so consider pairs (1,2), (3,4) and (5,6)
+			for i := 1; i+1 < 7; i += 2 {
+				if turn[i] != "" {
+					num, err := strconv.Atoi(turn[i])
+					if err != nil {
+						panic(err)
+					}
+					counts[turn[i+1]] = max(counts[turn[i+1]], num)
 				}
-				counts[item[2]] = max(counts[item[2]], num)
 			}
 		}
 		total += counts["red"] * counts["green"] * counts["blue"]
