@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/spf13/viper"
@@ -87,4 +88,26 @@ func (c *Input) TileMap() util.Matrix[rune] {
 	})
 
 	return m
+}
+
+func InputMap[V any](c *Input, f func(string) V) []V {
+	ch := c.Lines()
+	wg := sync.WaitGroup{}
+	results := []V{}
+	for {
+		line, open := <-ch
+		if line != "" {
+			wg.Add(1)
+			go func() {
+				results = append(results, f(line))
+				wg.Done()
+			}()
+		}
+		if !open {
+			wg.Wait()
+			break
+		}
+	}
+
+	return results
 }
