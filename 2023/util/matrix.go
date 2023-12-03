@@ -34,12 +34,29 @@ func (m *Matrix[V]) Fill(v V) {
 	})
 }
 
-func (m *Matrix[V]) Set(y, x int, v V) {
+func (m *Matrix[V]) MustSet(y, x int, v V) {
 	(*m)[y][x] = v
 }
 
-func (m *Matrix[V]) Get(y, x int) V {
+func (m *Matrix[V]) Set(y, x int, v V) bool {
+	if y < 0 || x < 0 || y >= m.GetHeight() || x >= m.GetWidth() {
+		return false
+	}
+	(*m)[y][x] = v
+
+	return true
+}
+
+func (m *Matrix[V]) MustGet(y, x int) V {
 	return (*m)[y][x]
+}
+
+func (m *Matrix[V]) Get(y, x int) (V, bool) {
+	if y < 0 || x < 0 || y >= m.GetHeight() || x >= m.GetWidth() {
+		var val V
+		return val, false
+	}
+	return (*m)[y][x], true
 }
 
 func (m *Matrix[V]) SetByRule(f func(y int, x int) V) {
@@ -96,7 +113,8 @@ func (m *Matrix[V]) ToImage() image.Image {
 	img := image.NewRGBA(image.Rect(0, 0, m.GetWidth(), m.GetHeight()))
 	for x := 0; x < m.GetWidth(); x++ {
 		for y := 0; y < m.GetHeight(); y++ {
-			img.Set(x, y, ColourFunction(tMap[m.Get(y, x)]))
+			v, _ := m.Get(y, x)
+			img.Set(x, y, ColourFunction(tMap[v]))
 		}
 	}
 
@@ -107,7 +125,8 @@ func (m *Matrix[V]) Unique() []V {
 	set := make(map[V]bool)
 	for x := 0; x < m.GetWidth(); x++ {
 		for y := 0; y < m.GetHeight(); y++ {
-			set[m.Get(y, x)] = true
+			v, _ := m.Get(y, x)
+			set[v] = true
 		}
 	}
 	keys := make([]V, 0, len(set))
@@ -124,7 +143,8 @@ func (m *Matrix[V]) Unique() []V {
 func Map[K, V cmp.Ordered](m Matrix[K], f func(y int, x int, value K) V) Matrix[V] {
 	n := NewMatrix[V](m.GetHeight(), m.GetWidth())
 	n.SetByRule(func(y, x int) V {
-		return f(y, x, m.Get(y, x))
+		v, _ := m.Get(y, x)
+		return f(y, x, v)
 	})
 
 	return n
