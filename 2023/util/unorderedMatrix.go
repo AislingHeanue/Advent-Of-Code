@@ -98,6 +98,18 @@ func (m *UnorderedMatrix[V]) PrintEvenlySpaced(delimiter string) {
 	}
 }
 
+// iterates in over the matrix in a pseudo-random order
+func (m *UnorderedMatrix[V]) Iterator() map[Point2D]V {
+	iterMap := make(map[Point2D]V)
+	for x := 0; x < m.GetWidth(); x++ {
+		for y := 0; y < m.GetHeight(); y++ {
+			iterMap[Point2D{y, x}] = m.MustGet(y, x)
+		}
+	}
+
+	return iterMap
+}
+
 func UnorderedMap[K, V any](m UnorderedMatrix[K], f func(y int, x int, value K) V) UnorderedMatrix[V] {
 	n := NewUnorderedMatrix[V](m.GetHeight(), m.GetWidth())
 	n.SetByRule(func(y, x int) V {

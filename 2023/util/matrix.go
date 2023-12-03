@@ -140,6 +140,18 @@ func (m *Matrix[V]) Unique() []V {
 	return keys
 }
 
+// iterates in over the matrix in a pseudo-random order
+func (m *Matrix[V]) Iterator() map[Point2D]V {
+	iterMap := make(map[Point2D]V)
+	for x := 0; x < m.GetWidth(); x++ {
+		for y := 0; y < m.GetHeight(); y++ {
+			iterMap[Point2D{y, x}] = m.MustGet(y, x)
+		}
+	}
+
+	return iterMap
+}
+
 func Map[K, V cmp.Ordered](m Matrix[K], f func(y int, x int, value K) V) Matrix[V] {
 	n := NewMatrix[V](m.GetHeight(), m.GetWidth())
 	n.SetByRule(func(y, x int) V {

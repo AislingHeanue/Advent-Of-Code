@@ -32,3 +32,14 @@ func ColourFunction(tPreScaled float64) color.Color {
 		return color.RGBA{uint8(1275 * (1.2 - t)), 0, 255, 255}
 	}
 }
+
+type Point2D struct {
+	Y int
+	X int
+}
+
+type Point3d struct {
+	Z int
+	Y int
+	X int
+}
