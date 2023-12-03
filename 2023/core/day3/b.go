@@ -51,7 +51,7 @@ func partB(challenge *core.Input) int {
 	total := 0
 
 	for y := 0; y < matrix.GetHeight(); y++ {
-		for x := 0; x < mat.GetWidth(); x++ {
+		for x := 0; x < matrix.GetWidth(); x++ {
 			if elem := matrix.MustGet(y, x); elem.symbol != "." {
 				values := []int{}
 				// check for numbers in surrounding area
