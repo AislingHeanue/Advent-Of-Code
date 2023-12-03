@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-
-	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day1"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day2"
@@ -38,8 +36,6 @@ func CreateCommand() *cobra.Command {
 			fmt.Printf("Time: %v\n", time.Since(startTime))
 		},
 	}
-
-	util.WindowBeingUsed = false
 
 	addDays(root)
 

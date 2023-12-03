@@ -6,13 +6,9 @@ import (
 	"time"
 )
 
-func init() {
-	EbitenSetup()
-	WindowBeingUsed = false
-}
-
 func TestMatrix(t *testing.T) {
-	defer AwaitClosure()
+	// EbitenSetup()
+	// defer AwaitClosure()
 
 	m := NewMatrix[int](40, 40)
 	m.SetByRule(func(y, x int) int {
@@ -23,7 +19,8 @@ func TestMatrix(t *testing.T) {
 }
 
 func TestThreeMatrix_Sphere(t *testing.T) {
-	go AwaitClosure()
+	// EbitenSetup()
+	// go AwaitClosure()
 	r := 55
 	m := NewThreeMatrix[int](2*r+1, 2*r+1, 2*r+1)
 	m.SetByRule(func(z, y, x int) int {
@@ -43,7 +40,8 @@ func TestThreeMatrix_Sphere(t *testing.T) {
 }
 
 func TestThreeMatrix_Cube(t *testing.T) {
-	go AwaitClosure()
+	// EbitenSetup()
+	// go AwaitClosure()
 	r := 40
 	m := NewThreeMatrix[float64](2*r+1, 2*r+1, 2*r+1)
 	m.SetByRule(func(z, y, x int) float64 {

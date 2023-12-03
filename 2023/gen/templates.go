@@ -10,7 +10,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	{{ range $day := seq 1 .N }}
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day{{ $day }}"
 	{{- end }}
@@ -40,8 +39,6 @@ func CreateCommand() *cobra.Command {
 			fmt.Printf("Time: %v\n", time.Since(startTime))
 		},
 	}
-
-	util.WindowBeingUsed = false
 
 	addDays(root)
 
@@ -80,6 +77,9 @@ func {{ .AB | toLower }}Command() *cobra.Command {
 }
 
 func part{{ .AB | toUpper }}(challenge *core.Input) int {
+	// uncomment to use util.Matrix.Draw(). util.WindowBeingUsed is a global variable used to tell the code to stop rendering.
+	// util.EbitenSetup()
+	// defer util.AwaitClosure()
     panic("Not implemented!")
 }
 `
