@@ -112,3 +112,17 @@ func InputMap[V any](c *Input, f func(string) V) []V {
 
 	return results
 }
+
+func InputMapOneThread[V any](c *Input, f func(string) V) []V {
+	ch := c.Lines()
+	results := []V{}
+	for {
+		line, open := <-ch
+		if line != "" {
+			results = append(results, f(line))
+		} else if !open {
+			break
+		}
+	}
+	return results
+}

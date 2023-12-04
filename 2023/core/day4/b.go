@@ -3,6 +3,7 @@ package day4
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 	"github.com/spf13/cobra"
@@ -19,31 +20,10 @@ func bCommand() *cobra.Command {
 }
 
 func partB(challenge *core.Input) int {
-	// uncomment to use util.Matrix.Draw(). util.WindowBeingUsed is a global variable used to tell the code to stop rendering.
-	// util.EbitenSetup()
-	// defer util.AwaitClosure()
-	var re *regexp.Regexp
 	var elfDigits int
 	lines := challenge.LineSlice()
 	scoreCache = make(map[int]int)
-	switch len(lines[0]) {
-	case 116:
-		// regex format: 0: whole match, 2-11: elf digits, 12-36: winning digits
-		re = regexp.MustCompile(`Card\s+(\d+):\s+` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)\|\s+` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(\d+)?`)
-		elfDigits = 10
-	case 48:
-		// regex format: 0: whole match, 2-6: elf digits, 7-14: winning digits
-		re = regexp.MustCompile(`Card\s+(\d+):\s+` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)\|\s+` +
-			`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(\d+)`)
-		elfDigits = 5
-	default:
-		panic("wrong input line size")
-	}
+	re := regexp.MustCompile(`(\d+)`)
 	total := 0
 	for i := 0; i < len(lines); i++ {
 		total += 1 + scoreLine(lines, i, re, elfDigits)
@@ -60,12 +40,13 @@ func scoreLine(lines []string, index int, re *regexp.Regexp, elfDigits int) int 
 	if ok {
 		return total
 	}
-
-	regexRes := re.FindStringSubmatch(lines[index])
+	lineParts := strings.Split(strings.Split(lines[index], ":")[1], "|")
+	leftNums := re.FindAllString(lineParts[0], -1)
+	rightNums := re.FindAllString(lineParts[1], -1)
 	matches := 0
-	for j := elfDigits + 2; j < len(regexRes); j++ {
-		for i := 2; i < 2+elfDigits; i++ {
-			if regexRes[i] == regexRes[j] {
+	for j := 0; j < len(leftNums); j++ {
+		for i := 0; i < len(rightNums); i++ {
+			if rightNums[i] == leftNums[j] {
 				matches++
 			}
 		}
