@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"image/color"
+	"math"
 )
 
 func Between[V cmp.Ordered](minimum, value, maximum V) V {
@@ -42,4 +43,8 @@ type Point3d struct {
 	Z int
 	Y int
 	X int
+}
+
+func Power[N ~float64 | ~int](a, b N) N {
+	return N(math.Pow(float64(a), float64(b)))
 }
