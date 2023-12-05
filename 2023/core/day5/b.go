@@ -63,7 +63,7 @@ func partB(challenge *core.Input) int {
 			}
 			if (lowestLoc > newSeed || lowestLoc == -1) && newSeed != -1 {
 				lowestLoc = newSeed
-				fmt.Printf("New lowest %d found with seed %d. Seed ranges checked: %d/%d", lowestLoc, seed, seedIndex/2, len(seeds))
+				fmt.Printf("New lowest %d found with seed %d. Seed ranges checked: %d/%d\n", lowestLoc, seed, seedIndex/2, len(seeds))
 			}
 		}
 	}
