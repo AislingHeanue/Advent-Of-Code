@@ -12,6 +12,7 @@ import (
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day2"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day3"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day4"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day5"
 )
 	
 
@@ -20,6 +21,7 @@ func addDays(root *cobra.Command) {
 	day2.AddCommandsTo(root)
 	day3.AddCommandsTo(root)
 	day4.AddCommandsTo(root)
+	day5.AddCommandsTo(root)
 }
 
 
