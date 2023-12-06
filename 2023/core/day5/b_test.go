@@ -47,3 +47,62 @@ humidity-to-location map:
 
 	require.Equal(t, 46, result)
 }
+
+func TestUnion(t *testing.T) {
+	i1 := Interval{1, 4}
+	i2 := Interval{6, 8}
+	i3 := Interval{2, 7}
+
+	result := IntervalSet{}
+	result.Union(i1)
+	result.Union(i2)
+	result.Union(i3)
+	require.Equal(t, IntervalSet{Interval{1, 8}}, result)
+}
+
+func TestRemove(t *testing.T) {
+	i2 := Interval{51, 52}
+	i4 := Interval{50, 98}
+
+	set := IntervalSet{}
+	set.Union(i4)
+	removed, set := set.FilterAndRemoveByInterval(i2)
+
+	require.Equal(t, IntervalSet{Interval{51, 52}}, removed)
+	require.Equal(t, IntervalSet{Interval{50, 51}, Interval{52, 98}}, set)
+
+}
+
+func TestRemove2(t *testing.T) {
+	i2 := Interval{53, 61}
+	i4 := Interval{51, 55}
+
+	set := IntervalSet{}
+	set.Union(i4)
+	removed, set := set.FilterAndRemoveByInterval(i2)
+
+	require.Equal(t, IntervalSet{Interval{53, 55}}, removed)
+	require.Equal(t, IntervalSet{Interval{51, 53}}, set)
+}
+
+func TestRemove3(t *testing.T) {
+	i2 := Interval{53, 61}
+	i4 := Interval{51, 55}
+
+	set := IntervalSet{}
+	set.Union(i2)
+	removed, set := set.FilterAndRemoveByInterval(i4)
+
+	require.Equal(t, IntervalSet{Interval{53, 55}}, removed)
+	require.Equal(t, IntervalSet{Interval{55, 61}}, set)
+}
+
+func TestRemove4(t *testing.T) {
+	i1 := Interval{25, 95}
+	i2 := IntervalSet{Interval{96, 120}}
+
+	removed, set := i2.FilterAndRemoveByInterval(i1)
+
+	require.Equal(t, IntervalSet{}, removed)
+	require.Equal(t, IntervalSet{Interval{96, 120}}, set)
+}
