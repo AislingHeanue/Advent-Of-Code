@@ -42,15 +42,15 @@ func (di *DrawInstance) Layout(outsideWidth, outsideHeight int) (screenWidth, sc
 }
 
 func EbitenSetup() {
-	ebiten.SetWindowSize(400, 400)
-	ebiten.SetWindowTitle("Output")
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowClosingHandled(true)
-	ebiten.SetTPS(60)
-	di := DrawInstance{}
-	di.Image = image.NewRGBA(image.Rect(0, 0, 50, 50))
-	go ebiten.RunGame(&di)
 	if !ForceNoWindow {
+		ebiten.SetWindowSize(400, 400)
+		ebiten.SetWindowTitle("Output")
+		ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+		ebiten.SetWindowClosingHandled(true)
+		ebiten.SetTPS(60)
+		di := DrawInstance{}
+		di.Image = image.NewRGBA(image.Rect(0, 0, 50, 50))
+		go ebiten.RunGame(&di)
 		WindowBeingUsed = true
 	}
 }

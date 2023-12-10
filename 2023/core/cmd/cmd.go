@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day1"
-	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day10"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day2"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day3"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day4"
@@ -17,6 +17,7 @@ import (
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day7"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day8"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day9"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day10"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 )
 	

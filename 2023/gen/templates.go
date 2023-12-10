@@ -95,12 +95,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func init() {
-	util.ForceNoWindow = true
-}
-
 func Test{{ .AB }}(t *testing.T) {
 	t.Parallel()
+	util.ForceNoWindow = true
 	input := core.FromLiteral("foobar")
 
 	result := part{{ .AB | toUpper }}(input)
@@ -116,19 +113,19 @@ import (
 	"testing"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 )
 
-func init() {
-	util.ForceNoWindow = true
-}
 
 func BenchmarkA(b *testing.B) {
+	util.ForceNoWindow = true
 	for i := 0; i < b.N; i++ {
 		_ = partA(core.FromFile())
 	}
 }
 
 func BenchmarkB(b *testing.B) {
+	util.ForceNoWindow = true
 	for i := 0; i < b.N; i++ {
 		_ = partB(core.FromFile())
 	}

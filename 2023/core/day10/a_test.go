@@ -10,6 +10,7 @@ import (
 
 func TestA(t *testing.T) {
 	t.Parallel()
+	util.ForceNoWindow = true
 	input := core.FromLiteral(`.....
 .S-7.
 .|.|.
@@ -24,6 +25,7 @@ func TestA(t *testing.T) {
 
 func TestA2(t *testing.T) {
 	t.Parallel()
+	util.ForceNoWindow = true
 	input := core.FromLiteral(`7-F7-
 .FJ|7
 SJLL7
@@ -37,6 +39,7 @@ LJ.LJ`)
 }
 
 func TestDrawPath(t *testing.T) {
+	t.Skip("Don't run animations in overall tests")
 	Test = true
 	input := core.FromFile()
 	d := partA(input)
