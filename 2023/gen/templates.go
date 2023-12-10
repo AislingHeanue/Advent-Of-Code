@@ -13,6 +13,7 @@ import (
 	{{ range $day := seq 1 .N }}
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day{{ $day }}"
 	{{- end }}
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 )
 	
 
@@ -37,6 +38,7 @@ func CreateCommand() *cobra.Command {
 		},
 		PersistentPostRun: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("Time: %v\n", time.Since(startTime))
+			util.AwaitClosure()
 		},
 	}
 
@@ -79,7 +81,6 @@ func {{ .AB | toLower }}Command() *cobra.Command {
 func part{{ .AB | toUpper }}(challenge *core.Input) int {
 	// uncomment to use util.Matrix.Draw(). util.WindowBeingUsed is a global variable used to tell the code to stop rendering.
 	// util.EbitenSetup()
-	// defer util.AwaitClosure()
     panic("Not implemented!")
 }
 `
@@ -90,16 +91,22 @@ import (
 	"testing"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/stretchr/testify/require"
 )
 
+func init() {
+	util.ForceNoWindow = true
+}
+
 func Test{{ .AB }}(t *testing.T) {
-	t.Skipf("Challenge not yet solved")
-input := core.FromLiteral("foobar")
+	t.Parallel()
+	input := core.FromLiteral("foobar")
 
 	result := part{{ .AB | toUpper }}(input)
 
 	require.Equal(t, 42, result)
+	util.AwaitClosure()
 }
 `
 
@@ -110,6 +117,10 @@ import (
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 )
+
+func init() {
+	util.ForceNoWindow = true
+}
 
 func BenchmarkA(b *testing.B) {
 	for i := 0; i < b.N; i++ {

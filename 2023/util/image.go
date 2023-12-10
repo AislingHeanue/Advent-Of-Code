@@ -10,6 +10,7 @@ import (
 var Image image.Image
 var WindowClosureChan = make(chan struct{})
 var WindowBeingUsed = false // use this to end any goroutines that were waiting for AwaitClosure
+var ForceNoWindow = false
 
 type DrawInstance struct {
 	Image image.Image
@@ -49,11 +50,14 @@ func EbitenSetup() {
 	di := DrawInstance{}
 	di.Image = image.NewRGBA(image.Rect(0, 0, 50, 50))
 	go ebiten.RunGame(&di)
-	WindowBeingUsed = true
-	// go autoCloseWindow(1 * time.Second)
+	if !ForceNoWindow {
+		WindowBeingUsed = true
+	}
 }
 
 func AwaitClosure() {
-	<-WindowClosureChan
-	WindowBeingUsed = false
+	if WindowBeingUsed {
+		<-WindowClosureChan
+		WindowBeingUsed = false
+	}
 }

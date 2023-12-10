@@ -19,6 +19,9 @@ func aCommand() *cobra.Command {
 	}
 }
 
+var Test = false
+var Distances util.Matrix[int]
+
 type Tile struct {
 	up      bool
 	down    bool
@@ -31,14 +34,11 @@ func partA(challenge *core.Input) int {
 	// use ebiten to draw the main loop after it's been found :)
 	// uncomment to use util.Matrix.Draw(). util.WindowBeingUsed is a global variable used to tell the code to stop rendering.
 	util.EbitenSetup()
-	defer util.AwaitClosure()
 	letters := challenge.TileMap()
 	tiles := util.MapToUnordered(letters, toTile)
 	sLocation := util.Point2D{}
 	for point, value := range tiles.Iterator() {
-		if !value.isStart {
-			continue
-		} else {
+		if value.isStart {
 			sLocation = point
 			pointsToCheck := map[string]util.Point2D{
 				"up":    {Y: point.Y - 1, X: point.X},
@@ -69,7 +69,13 @@ func partA(challenge *core.Input) int {
 	})
 	distances.MustSet(sLocation.Y, sLocation.X, -1)
 
-	return march(sLocation, tiles, &distances) - 1
+	// hack to extract the distances matrix for a unit test
+	answer := march(sLocation, tiles, &distances) - 1
+	if Test {
+		Distances = distances
+	}
+
+	return answer
 }
 
 func toTile(y, x int, letter rune) Tile {
@@ -96,71 +102,22 @@ func toTile(y, x int, letter rune) Tile {
 func march(sLocation util.Point2D, tiles util.UnorderedMatrix[Tile], distances *util.Matrix[int]) int {
 	distance := 1
 	loc := sLocation
-	previousDirection := ""
-	sTile := tiles.MustGet(sLocation.Y, sLocation.X)
-
-	if sTile.up {
-		previousDirection = "up"
-	}
-	if sTile.down {
-		previousDirection = "down"
-	}
-	if sTile.left {
-		previousDirection = "left"
-	}
-	if sTile.right {
-		previousDirection = "right"
-	}
+	lastLoc := util.Point2D{Y: -2, X: -2}
 	for {
 		distance++
 		tile := tiles.MustGet(loc.Y, loc.X)
-		direction := previousDirection
-		//march to the next location, making sure not to double back ever
-		switch direction {
-		case "up":
-			if tile.down {
-				previousDirection = "up" //we just came from the up tile by going down
-				loc = util.Point2D{Y: loc.Y + 1, X: loc.X}
-			} else if tile.left {
-				previousDirection = "right"
-				loc = util.Point2D{Y: loc.Y, X: loc.X - 1}
-			} else if tile.right {
-				previousDirection = "left"
-				loc = util.Point2D{Y: loc.Y, X: loc.X + 1}
-			}
-		case "down":
-			if tile.up {
-				previousDirection = "down"
-				loc = util.Point2D{Y: loc.Y - 1, X: loc.X}
-			} else if tile.left {
-				previousDirection = "right"
-				loc = util.Point2D{Y: loc.Y, X: loc.X - 1}
-			} else if tile.right {
-				previousDirection = "left"
-				loc = util.Point2D{Y: loc.Y, X: loc.X + 1}
-			}
-		case "left":
-			if tile.down {
-				previousDirection = "up"
-				loc = util.Point2D{Y: loc.Y + 1, X: loc.X}
-			} else if tile.up {
-				previousDirection = "down"
-				loc = util.Point2D{Y: loc.Y - 1, X: loc.X}
-			} else if tile.right {
-				previousDirection = "left"
-				loc = util.Point2D{Y: loc.Y, X: loc.X + 1}
-			}
-		case "right":
-			if tile.down {
-				previousDirection = "up"
-				loc = util.Point2D{Y: loc.Y + 1, X: loc.X}
-			} else if tile.left {
-				previousDirection = "right"
-				loc = util.Point2D{Y: loc.Y, X: loc.X - 1}
-			} else if tile.up {
-				previousDirection = "down"
-				loc = util.Point2D{Y: loc.Y - 1, X: loc.X}
-			}
+		if tile.up && lastLoc.Y != loc.Y-1 {
+			lastLoc = loc
+			loc.Y--
+		} else if tile.down && lastLoc.Y != loc.Y+1 {
+			lastLoc = loc
+			loc.Y++
+		} else if tile.left && lastLoc.X != loc.X-1 {
+			lastLoc = loc
+			loc.X--
+		} else if tile.right && lastLoc.X != loc.X+1 {
+			lastLoc = loc
+			loc.X++
 		}
 
 		if distances.MustGet(loc.Y, loc.X) != 0 {
