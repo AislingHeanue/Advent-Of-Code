@@ -39,7 +39,7 @@ LJ.LJ`)
 }
 
 func TestDrawPath(t *testing.T) {
-	t.Skip("Don't run animations in overall tests")
+	t.Parallel() // ("Don't run animations in overall tests")
 	Test = true
 	input := core.FromFile()
 	d := partA(input)
