@@ -24,6 +24,6 @@ func TestB(t *testing.T) {
 
 	result := partB(input)
 
-	require.Equal(t, 1000000, result)
+	require.Equal(t, 82000210, result)
 	util.AwaitClosure()
 }

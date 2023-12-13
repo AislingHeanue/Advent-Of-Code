@@ -20,6 +20,17 @@ func TestB(t *testing.T) {
 
 	result := partB(input)
 
-	require.Equal(t, 21, result)
+	require.Equal(t, 525152, result)
+	util.AwaitClosure()
+}
+
+func TestBSmall(t *testing.T) {
+	t.Parallel()
+	util.ForceNoWindow = true
+	input := core.FromLiteral(`????.#...#... 4,1,1`)
+
+	result := partB(input)
+
+	require.Equal(t, 16, result)
 	util.AwaitClosure()
 }

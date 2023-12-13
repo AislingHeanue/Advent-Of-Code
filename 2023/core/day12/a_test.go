@@ -23,3 +23,35 @@ func TestA(t *testing.T) {
 	require.Equal(t, 21, result)
 	util.AwaitClosure()
 }
+
+func TestASmall(t *testing.T) {
+	t.Parallel()
+	util.ForceNoWindow = true
+	input := core.FromLiteral(`?#?#?#?#?#?#?#? 1,3,1,6`)
+	result := partA(input)
+	require.Equal(t, 1, result)
+}
+
+func TestASmaller(t *testing.T) {
+	t.Parallel()
+	util.ForceNoWindow = true
+	input := core.FromLiteral(`???? 1`)
+	result := partA(input)
+	require.Equal(t, 4, result)
+}
+
+func TestAEdge(t *testing.T) {
+	t.Parallel()
+	util.ForceNoWindow = true
+	input := core.FromLiteral(`..???#??????#?????? 3,6`)
+	result := partA(input)
+	require.Equal(t, 15, result)
+}
+
+func TestAEdge2(t *testing.T) {
+	t.Parallel()
+	util.ForceNoWindow = true
+	input := core.FromLiteral(`..???#??????#?????? 3`)
+	result := partA(input)
+	require.Equal(t, 0, result)
+}

@@ -2,10 +2,11 @@ package day12
 
 import (
 	"fmt"
-	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/spf13/cobra"
 )
 
@@ -32,51 +33,59 @@ func partA(challenge *core.Input) int {
 
 func countPossible(line string) int {
 	parts := strings.Split(line, " ")
-	// fmt.Printf("%v %v\n", getWidths(parts[0]), strings.Split(parts[1], ","))
-	runningTotal := 0 // I hope this is threadsafe
-	dotOrHash(parts[0], strings.Split(parts[1], ","), 0, &runningTotal)
-	// fmt.Println(line, runningTotal)
-	return runningTotal
+	line1 := parts[0]
+	line2 := strings.Split(parts[1], ",")
+	line2Num := make([]int, len(line2))
+	for i := range line2 {
+		line2Num[i], _ = strconv.Atoi(line2[i])
+	}
+	possibleMatrix := util.NewMatrix[int](len(line2Num), len(line1))
+	possibleMatrix.Fill(-1)
+	b := getPossible(len(line1)-1, len(line2Num)-1, &possibleMatrix, line1, line2Num)
+	// fmt.Println(b)
+	return b
 }
 
-func dotOrHash(line1 string, line2 []string, n int, runningTotal *int) {
-	// TODO add caching probably
-
-	if n == len(line1) {
-		widths := getWidths(line1)
-		if len(line2) != len(widths) {
-			return
-		}
-		// fmt.Println(widths, line2)
-		for i := range line2 {
-			if line2[i] != widths[i] {
-				// fmt.Println("no")
-				return
+func getPossible(stringIndex int, numsIndex int, possibleMatrix *util.Matrix[int], line1 string, line2Num []int) int {
+	total := 0
+	// EDGE CASES
+	if numsIndex == -1 {
+		for i := 0; i <= stringIndex; i++ {
+			if line1[i] == '#' {
+				return 0 // extra # ruins everything
 			}
 		}
-		// fmt.Printf("yes, %v\n", line1)
-		*runningTotal++
-		return
+		return 1
+	} else if line2Num[numsIndex]-1 > stringIndex {
+		return 0
 	}
-	if line1[n] != '?' {
-		dotOrHash(line1, line2, n+1, runningTotal)
-		return
-	}
-	lineBytes := []byte(line1)
-	lineBytes[n] = byte('.')
-	dotOrHash(string(lineBytes), line2, n+1, runningTotal)
-	lineBytes[n] = byte('#')
-	dotOrHash(string(lineBytes), line2, n+1, runningTotal)
-}
-
-var widthRe = regexp.MustCompile(`#+`)
-
-func getWidths(line string) []string {
-	widthRes := widthRe.FindAllString(line, -1)
-	res := []string{}
-	for i := 0; i < len(widthRes); i++ {
-		res = append(res, fmt.Sprint(len(widthRes[i])))
+	if stringIndex < 0 {
+		return 0
 	}
 
-	return res
+	// ALREADY CACHED (non-trivial) RESULTS
+	if a := possibleMatrix.MustGet(numsIndex, stringIndex); a != -1 {
+		return a
+	}
+
+	hashPossible := true
+	for i := 0; i < line2Num[numsIndex]; i++ {
+		if line1[stringIndex-i] == '.' {
+			hashPossible = false
+		}
+	}
+	if stringIndex-line2Num[numsIndex] >= 0 && line1[stringIndex-line2Num[numsIndex]] == '#' {
+		hashPossible = false // want a . to separate blocks of #
+	}
+
+	// the actual recursion
+	if hashPossible {
+		total += getPossible(stringIndex-line2Num[numsIndex]-1, numsIndex-1, possibleMatrix, line1, line2Num)
+	}
+	if line1[stringIndex] != '#' {
+		total += getPossible(stringIndex-1, numsIndex, possibleMatrix, line1, line2Num)
+	}
+	possibleMatrix.MustSet(numsIndex, stringIndex, total)
+
+	return total
 }

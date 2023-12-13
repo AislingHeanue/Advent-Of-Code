@@ -2,9 +2,11 @@ package day12
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/spf13/cobra"
 )
 
@@ -31,12 +33,14 @@ func partB(challenge *core.Input) int {
 
 func countPossibleB(line string) int {
 	parts := strings.Split(line, " ")
-	// fmt.Printf("%v %v\n", getWidths(parts[0]), strings.Split(parts[1], ","))
-	runningTotal := 0 // I hope this is threadsafe
+	line1 := parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0]
 	line2 := strings.Split(parts[1]+","+parts[1]+","+parts[1]+","+parts[1]+","+parts[1], ",")
-	dotOrHashB(parts[0]+parts[0]+parts[0]+parts[0]+parts[0], line2, 0, &runningTotal)
-	// fmt.Println(line, runningTotal)line2+line2+line2
-	return runningTotal
+	line2Num := make([]int, len(line2))
+	for i := range line2 {
+		line2Num[i], _ = strconv.Atoi(line2[i])
+	}
+	possibleMatrix := util.NewMatrix[int](len(line2Num), len(line1))
+	possibleMatrix.Fill(-1)
+	b := getPossible(len(line1)-1, len(line2Num)-1, &possibleMatrix, line1, line2Num)
+	return b
 }
-
-func dotOrHashB(line1 string, line2 []string, n int, runningTotal *int) {}
