@@ -24,6 +24,6 @@ O.#..O.#.#
 
 	result := partB(input)
 
-	require.Equal(t, 42, result)
+	require.Equal(t, 64, result)
 	util.AwaitClosure()
 }

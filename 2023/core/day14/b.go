@@ -22,23 +22,43 @@ func partB(challenge *core.Input) int {
 	// uncomment to use util.Matrix.Draw(). util.WindowBeingUsed is a global variable used to tell the code to stop rendering.
 	// util.EbitenSetup()
 	mat := challenge.TileMap()
-	boulderMemory := make(map[string]bool)
-	for i := 0; i < 10000000; i++ {
-		cycle(&mat, &boulderMemory)
+	matCopy := util.Map[rune, rune](mat, func(y, x int, v rune) rune { return v })
+	var cycleStart int
+	var cycleLength int
+	iterCount := 0
+
+	fmt.Println(iterCount, getScoreB(mat))
+	boulderMemory := make(map[string]int)
+	for {
+		if str, cycleFound := cycle(&mat, &boulderMemory, iterCount, true); cycleFound {
+			cycleStart = boulderMemory[str]
+			cycleLength = iterCount - cycleStart // iterCount was incremented before checking the cache. This also means the current index within the loop is 1.
+			// fmt.Println(cycleStart, cycleLength)
+			break
+		}
+		iterCount++
 	}
-	strMat := util.Map[rune, string](mat, func(y, x int, v rune) string {
-		return string(v)
-	})
-	strMat.Print("")
+	bigNumber := 1000000000
+	remaining := (bigNumber-cycleStart)%cycleLength + cycleStart
+	for remaining < cycleStart {
+		remaining += cycleLength
+	}
+	mat = matCopy
+	for i := 0; i < remaining; i++ {
+		cycle(&mat, &boulderMemory, iterCount, false)
+	}
 	return getScoreB(mat)
 }
 
-func cycle(mat *util.Matrix[rune], memory *map[string]bool) {
+func cycle(mat *util.Matrix[rune], memory *map[string]int, iterCount int, wantCycle bool) (string, bool) {
 	boulderString := getBoulders(*mat)
-	if _, ok := (*memory)[boulderString]; ok {
-		fmt.Println("I found a cycle")
+	if wantCycle {
+		if _, ok := (*memory)[boulderString]; ok {
+			fmt.Println("I found a cycle")
+			return boulderString, true
+		}
+		(*memory)[boulderString] = iterCount
 	}
-	(*memory)[boulderString] = true
 
 	for x := 0; x < mat.GetWidth(); x++ {
 		nextBoulderY := 0
@@ -100,6 +120,8 @@ func cycle(mat *util.Matrix[rune], memory *map[string]bool) {
 			}
 		}
 	}
+
+	return boulderString, false
 }
 
 func getBoulders(mat util.Matrix[rune]) string {
