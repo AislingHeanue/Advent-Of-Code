@@ -27,7 +27,7 @@ func partB(challenge *core.Input) int {
 	var cycleLength int
 	iterCount := 0
 
-	fmt.Println(iterCount, getScoreB(mat))
+	// fmt.Println(iterCount, getScoreB(mat))
 	boulderMemory := make(map[string]int)
 	for {
 		if str, cycleFound := cycle(&mat, &boulderMemory, iterCount, true); cycleFound {
@@ -54,7 +54,7 @@ func cycle(mat *util.Matrix[rune], memory *map[string]int, iterCount int, wantCy
 	boulderString := getBoulders(*mat)
 	if wantCycle {
 		if _, ok := (*memory)[boulderString]; ok {
-			fmt.Println("I found a cycle")
+			// fmt.Println("I found a cycle")
 			return boulderString, true
 		}
 		(*memory)[boulderString] = iterCount
