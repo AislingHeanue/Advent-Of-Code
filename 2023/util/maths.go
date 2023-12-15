@@ -48,3 +48,26 @@ type Point3d struct {
 func Power[N ~float64 | ~int](a, b N) N {
 	return N(math.Pow(float64(a), float64(b)))
 }
+
+func Gcd(x, y int) int {
+	if y == 0 || x == 0 {
+		return x
+	}
+	return Gcd(min(x, y), max(x, y)%min(x, y))
+}
+
+func Egcd(x, y int) (int, int, int) {
+	if x == 0 {
+		return y, 0, 1
+	}
+	g, a, b := Egcd(y%x, x)
+	return g, b - y/x*a, a
+}
+
+func Abs[V ~float64 | ~int](x V) V {
+	if x < 0 {
+		return -x
+	}
+
+	return x
+}

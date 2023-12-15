@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/spf13/cobra"
 )
 
@@ -37,51 +38,80 @@ func partB(challenge *core.Input) int {
 		}
 	}
 
-	parities := make([]Cycle, len(starterLabels))
+	cycles := make([]Cycle, len(starterLabels))
 	for i, label := range starterLabels {
-		parities[i] = getParity(label, instructions)
-		parities[i] = getZIndexes(parities[i], instructions)
+		cycles[i] = getCycle(label, instructions)
+		cycles[i] = getZIndexes(cycles[i], instructions)
 	}
 
-	// we need to find n such that for all i, n = offset_i + m*cycleLength_i + (one of the z values)
-	// eg. 6 = 1 + 2*2 + 1 and 6 = 1 + 0*6 + 5
-	// (n - offset)%cycleLength = (one of the z values)
-
-	// find the longest cycle with only one z
-	longCycle := parities[0]
-	for _, cycle := range parities {
-		if len(cycle.zIndexesInCycle) != 1 {
-			continue
-		}
-		if cycle.length > longCycle.length {
-			longCycle = cycle
+	// For each cycle, they will have an associated set of possible lines their values can fall on and give a valid result.
+	// The first step is to list out every possible line for each cycle.
+	lines := [][]Line{}
+	for i, cycle := range cycles {
+		lines = append(lines, []Line{})
+		for _, z := range cycle.zIndexesInCycle {
+			lines[i] = append(lines[i], Line{start: cycle.start + z, slope: cycle.length})
 		}
 	}
 
-	count := longCycle.start + longCycle.zIndexesInCycle[0]
-	for {
-		answerFound := true
-		for _, cycle := range parities {
-			if !isThisNGood(count, cycle) {
-				answerFound = false
-				break
-			}
+	// next, preform a depth first search to enumerate every combination of paths that can be taken, using one
+	// of the lines for each cycle at a time.
+	// After this, take the n*lines you've obtained and turn them into one big line.
+	paths := [][]Line{}
+	currentPath := []Line{}
+	minimum := -1
+	makePaths(lines, currentPath, 0, &paths)
+	for _, path := range paths {
+		aggregatedLine := path[0]
+		for i := 1; i < len(path); i++ {
+			// fmt.Println(aggregatedLine.slope * path[i].slope / util.Gcd(aggregatedLine.slope, path[i].slope))
+			aggregatedLine.product(path[i])
 		}
-		if answerFound {
-			return count
+		if (minimum == -1 || minimum > aggregatedLine.start) && aggregatedLine.slope > 0 {
+			minimum = aggregatedLine.start
 		}
-		count += longCycle.length
+	}
+
+	return minimum
+
+}
+
+func makePaths(lines [][]Line, currentPath []Line, index int, paths *[][]Line) {
+	if index == len(lines) {
+		*paths = append(*paths, currentPath)
+		return
+	}
+	for _, line := range lines[index] {
+		newPath := append(currentPath, line)
+		makePaths(lines, newPath, index+1, paths)
 	}
 }
 
-func isThisNGood(n int, cycle Cycle) bool {
-	for _, zIndex := range cycle.zIndexesInCycle {
-		if (n-cycle.start)%cycle.length == zIndex {
-			return true
-		}
+// given lines a1+b1*x = n = a2+b2*y
+// find the possible values of n in the form a3+b3*z
+// a1-a2 = b1x - b2y
+// the rest is taken from this textbook
+// https://math.libretexts.org/Courses/Mount_Royal_University/MATH_2150%3A_Higher_Arithmetic/5%3A_Diophantine_Equations/5.1%3A_Linear_Diophantine_Equations#:~:text=A%20Linear%20Diophantine%20equation%20(LDE,and%20y%20are%20unknown%20variables.
+func (l1 *Line) product(l2 Line) {
+	d, _, y0 := util.Egcd(l1.slope, l2.slope)
+	c := l1.start - l2.start
+	if c%d != 0 {
+		*l1 = Line{0, -1} // there are no solutions
+		return
 	}
+	ySlope := l1.slope / d
+	yStart := (c / d * y0) % ySlope
+	slope := l2.slope * ySlope
+	start := (l2.start + l2.slope*yStart) % slope
+	if start == 0 {
+		start = slope
+	}
+	*l1 = Line{start: start, slope: slope}
+}
 
-	return false
+type Line struct {
+	start int
+	slope int
 }
 
 type Cycle struct {
@@ -101,7 +131,7 @@ type CacheEntry struct {
 // 2. None of the Z's that appear before the cycle begins will be the one in the actual answer
 // 3. The instruction list itself is not repeating
 // I can make assumptions 1 and 2 since I know the final answer is much much larger than the length of my input.
-func getParity(start string, instructions string) Cycle {
+func getCycle(start string, instructions string) Cycle {
 	nodeCache := make(map[CacheEntry]int)
 	count := 0
 	label := start

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,4 +24,8 @@ XXX = (XXX, XXX)`)
 	result := partB(input)
 
 	require.Equal(t, 6, result)
+}
+
+func TestGcd(t *testing.T) {
+	require.Equal(t, util.Gcd(60, 48), 12)
 }
