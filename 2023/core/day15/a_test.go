@@ -27,5 +27,5 @@ func TestDecode(t *testing.T) {
 }
 
 func TestHash(t *testing.T) {
-	fmt.Println(HASH("rn"))
+	require.Equal(t, HASH("rn"), 0)
 }
