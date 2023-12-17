@@ -39,7 +39,7 @@ type Point2D struct {
 	X int
 }
 
-type Point3d struct {
+type Point3D struct {
 	Z int
 	Y int
 	X int
