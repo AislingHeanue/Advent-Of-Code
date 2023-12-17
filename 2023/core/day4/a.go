@@ -3,6 +3,7 @@ package day4
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
@@ -24,52 +25,14 @@ func partA(challenge *core.Input) int {
 	// util.EbitenSetup()
 	// defer util.AwaitClosure()
 	total := 0
+	re := regexp.MustCompile(`(\d+)`)
 
-	res := core.InputMap(challenge, solveLineA)
-	for _, num := range res {
-		total += num
+	lines := challenge.LineSlice()
+	for i := range lines {
+		total += scoreLine(lines, i, re, false)
 	}
 
 	return total
-}
-
-var (
-	re116 = regexp.MustCompile(`Card\s+(\d+):\s+` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)\|\s+` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(\d+)?`)
-	re48 = regexp.MustCompile(`Card\s+(\d+):\s+` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)\|\s+` +
-		`(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(?:(\d+)\s+)(\d+)`)
-)
-
-func solveLineA(line string) int {
-	var re *regexp.Regexp
-	var elfDigits int
-	switch len(line) {
-	case 116:
-		// regex format: 0: whole match, 2-11: elf digits, 12-36: winning digits
-		re = re116
-		elfDigits = 10
-	case 48:
-		// regex format: 0: whole match, 2-6: elf digits, 7-14: winning digits
-		re = re48
-		elfDigits = 5
-	default:
-		panic("wrong input line size")
-	}
-	regexRes := re.FindStringSubmatch(line)
-	matches := 0
-	for j := elfDigits + 2; j < len(regexRes); j++ {
-		for i := 2; i < 2+elfDigits; i++ {
-			if regexRes[i] == regexRes[j] {
-				matches++
-			}
-		}
-	}
-
-	return value(matches)
 }
 
 func value(matches int) int {
@@ -77,4 +40,34 @@ func value(matches int) int {
 		return 0
 	}
 	return util.Power(2, matches-1)
+}
+
+var scoreCache map[int]int
+
+func scoreLine(lines []string, index int, re *regexp.Regexp, b bool) int {
+	total, ok := scoreCache[index]
+	if ok {
+		return total
+	}
+	lineParts := strings.Split(strings.Split(lines[index], ":")[1], "|")
+	leftNums := re.FindAllString(lineParts[0], -1)
+	rightNums := re.FindAllString(lineParts[1], -1)
+	matches := 0
+	for j := 0; j < len(leftNums); j++ {
+		for i := 0; i < len(rightNums); i++ {
+			if rightNums[i] == leftNums[j] {
+				matches++
+			}
+		}
+	}
+	if b {
+		for k := index + 1; k <= matches+index; k++ {
+			total += 1 + scoreLine(lines, k, re, true)
+		}
+		scoreCache[index] = total
+	} else {
+		total += value(matches)
+	}
+
+	return total
 }

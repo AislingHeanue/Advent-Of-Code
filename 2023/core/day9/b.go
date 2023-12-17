@@ -2,8 +2,6 @@ package day9
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 	"github.com/spf13/cobra"
@@ -30,10 +28,6 @@ func partB(challenge *core.Input) int {
 }
 
 func getPreviousValue(line string) int {
-	numberStrings := strings.Split(line, " ")
-	numbers := make([]int, len(numberStrings))
-	for i := range numberStrings {
-		numbers[i], _ = strconv.Atoi(numberStrings[i])
-	}
+	numbers := makeNumbers(line)
 	return getPolynomial(numbers)(-1)
 }

@@ -37,6 +37,9 @@ type PointWithDistance struct {
 // idea: let's do dijkstra but you can hop up to 3 nodes at once, and the state space is 3D because last-direction is important
 
 func partA(challenge *core.Input) int {
+	return solve(challenge, 1, 3)
+}
+func solve(challenge *core.Input, startLength, endLength int) int {
 	tiles := challenge.TileMap()
 	source := util.Point3D{Z: 1, Y: 0, X: 0}
 	source2 := util.Point3D{Z: 3, Y: 0, X: 0}
@@ -51,7 +54,7 @@ func partA(challenge *core.Input) int {
 		queue = queue[1:]
 		for z := 0; z < 4; z++ {
 		NewDirection:
-			for i := 1; i < 4; i++ {
+			for i := startLength; i <= endLength; i++ {
 				// NewTile:
 				switch Direction(z) {
 				case Up:

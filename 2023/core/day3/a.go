@@ -19,26 +19,31 @@ func aCommand() *cobra.Command {
 	}
 }
 
-type ElementA struct {
-	symbol string
-	number int
-	marked bool
+type Element struct {
+	number               int
+	symbol               string
+	markedBySymbolCoords *map[util.Point2D]bool
 }
 
 func partA(challenge *core.Input) int {
+	return solve(challenge, false)
+}
+
+func solve(challenge *core.Input, b bool) int {
 	mat := challenge.TileMap()
-	matrix := util.MapToUnordered[rune, ElementA](mat, func(y, x int, v rune) ElementA {
+	matrix := util.MapToUnordered[rune, Element](mat, func(y, x int, v rune) Element {
 		if unicode.IsDigit(v) {
-			return ElementA{
-				number: int(v - '0'),
-				symbol: ".",
-				marked: false,
+			newMap := make(map[util.Point2D]bool)
+			return Element{
+				number:               int(v - '0'),
+				symbol:               ".",
+				markedBySymbolCoords: &newMap,
 			}
 		} else {
-			return ElementA{
-				number: -1,
-				symbol: string(v),
-				marked: false,
+			return Element{
+				number:               -1,
+				symbol:               string(v),
+				markedBySymbolCoords: nil,
 			}
 		}
 	})
@@ -46,11 +51,12 @@ func partA(challenge *core.Input) int {
 
 	for point, elem := range matrix.Iterator() {
 		if elem.symbol != "." {
+			values := []int{}
 			// check for numbers in surrounding area
 			for y2 := point.Y - 1; y2 <= point.Y+1; y2++ {
 				for x2 := point.X - 1; x2 <= point.X+1; x2++ {
 					newElem, ok := matrix.Get(y2, x2)
-					if ok && newElem.number != -1 && !newElem.marked {
+					if ok && newElem.number != -1 && !(*newElem.markedBySymbolCoords)[point] {
 						left := x2
 						right := x2
 						value := 0
@@ -67,12 +73,18 @@ func partA(challenge *core.Input) int {
 							elem3 := matrix.MustGet(y2, x3)
 							value *= 10
 							value += elem3.number
-							elem3.marked = true
+							(*elem3.markedBySymbolCoords)[point] = true
 							matrix.MustSet(y2, x3, elem3)
 						}
-						total += value
+						values = append(values, value)
+						if !b && len(*newElem.markedBySymbolCoords) == 1 {
+							total += value
+						}
 					}
 				}
+			}
+			if b && len(values) == 2 {
+				total += values[0] * values[1]
 			}
 		}
 	}

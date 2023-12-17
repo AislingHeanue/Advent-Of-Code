@@ -33,7 +33,7 @@ func partB(challenge *core.Input) int {
 		})
 		direction := Down
 		currentTile := util.Point2D{Y: -1, X: x} //start outside the matrix
-		moveB(currentTile, direction, 0, tiles, &distances)
+		move(currentTile, direction, 0, tiles, &distances)
 		processDistances(distances, tiles, z, &maxTotal)
 		z++
 	}
@@ -43,7 +43,7 @@ func partB(challenge *core.Input) int {
 		})
 		direction := Left
 		currentTile := util.Point2D{Y: y, X: tiles.GetWidth()} //start outside the matrix
-		moveB(currentTile, direction, 0, tiles, &distances)
+		move(currentTile, direction, 0, tiles, &distances)
 		processDistances(distances, tiles, z, &maxTotal)
 		z++
 	}
@@ -53,7 +53,7 @@ func partB(challenge *core.Input) int {
 		})
 		direction := Up
 		currentTile := util.Point2D{Y: tiles.GetHeight(), X: x} //start outside the matrix
-		moveB(currentTile, direction, 0, tiles, &distances)
+		move(currentTile, direction, 0, tiles, &distances)
 		processDistances(distances, tiles, z, &maxTotal)
 		z++
 	}
@@ -63,7 +63,7 @@ func partB(challenge *core.Input) int {
 		})
 		direction := Down
 		currentTile := util.Point2D{Y: y, X: -1} //start outside the matrix
-		moveB(currentTile, direction, 0, tiles, &distances)
+		move(currentTile, direction, 0, tiles, &distances)
 		processDistances(distances, tiles, z, &maxTotal)
 		z++
 	}
@@ -104,108 +104,4 @@ func processDistances(distances util.UnorderedMatrix[DistanceEntry], tiles util.
 		}
 	}
 
-}
-
-func moveB(currentTile util.Point2D, direction Direction, count int, tiles util.Matrix[rune], distances *util.UnorderedMatrix[DistanceEntry]) {
-	d, ok := distances.Get(currentTile.Y, currentTile.X)
-
-	if count < d.distance || d.distance == 0 {
-		d.distance = count //want distances to be overwritten each time (purely because it looks nice)
-	}
-	if count > MaxCount {
-		MaxCount = count
-	}
-
-	// move to the next tile
-	switch direction {
-	case Up:
-		if d.hasUp {
-			return //we've already been here in this direction, must be a loop
-		}
-		d.hasUp = true
-		if ok {
-			distances.MustSet(currentTile.Y, currentTile.X, d)
-		}
-		currentTile.Y -= 1
-	case Down:
-		if d.hasDown {
-			return
-		}
-		d.hasDown = true
-		if ok {
-			distances.MustSet(currentTile.Y, currentTile.X, d)
-		}
-		currentTile.Y += 1
-	case Left:
-		if d.hasLeft {
-			return
-		}
-		d.hasLeft = true
-		if ok {
-			distances.MustSet(currentTile.Y, currentTile.X, d)
-		}
-		currentTile.X -= 1
-	case Right:
-		if d.hasRight {
-			return
-		}
-		d.hasRight = true
-		if ok {
-			distances.MustSet(currentTile.Y, currentTile.X, d)
-		}
-		currentTile.X += 1
-	}
-
-	// check the next tile
-	// evoke move based on next directions
-	letter, ok := tiles.Get(currentTile.Y, currentTile.X)
-	if !ok {
-		return //have fallen outside the matrix
-	}
-	// pureDistances := util.UnorderedMapToOrdered[DistanceEntry, int](*distances, func(y, x int, value DistanceEntry) int {
-	// 	return value.distance
-	// })
-	// pureDistances.PrintEvenlySpaced(",")
-	switch letter {
-	case '.':
-		move(currentTile, direction, count+1, tiles, distances)
-	case '-':
-		if direction != Right {
-			move(currentTile, Left, count+1, tiles, distances)
-		}
-		if direction != Left {
-			move(currentTile, Right, count+1, tiles, distances)
-		}
-	case '|':
-		if direction != Down {
-			move(currentTile, Up, count+1, tiles, distances)
-		}
-		if direction != Up {
-			move(currentTile, Down, count+1, tiles, distances)
-		}
-	case '\\':
-		switch direction {
-		case Up:
-			move(currentTile, Left, count+1, tiles, distances)
-		case Down:
-			move(currentTile, Right, count+1, tiles, distances)
-		case Left:
-			move(currentTile, Up, count+1, tiles, distances)
-		case Right:
-			move(currentTile, Down, count+1, tiles, distances)
-		}
-	case '/':
-		switch direction {
-		case Up:
-			move(currentTile, Right, count+1, tiles, distances)
-		case Down:
-			move(currentTile, Left, count+1, tiles, distances)
-		case Left:
-			move(currentTile, Down, count+1, tiles, distances)
-		case Right:
-			move(currentTile, Up, count+1, tiles, distances)
-		}
-	default:
-		panic("bad character")
-	}
 }

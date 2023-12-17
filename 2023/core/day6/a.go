@@ -19,13 +19,26 @@ func aCommand() *cobra.Command {
 		},
 	}
 }
-
 func partA(challenge *core.Input) int {
+	return solve(challenge, false)
+}
+
+func solve(challenge *core.Input, b bool) int {
 	lines := challenge.LineSlice()
 	re := regexp.MustCompile(`\d+`)
 	times := re.FindAllString(lines[0], -1)
 	distances := re.FindAllString(lines[1], -1)
 	total := 1
+	if b {
+		timeString := ""
+		distanceString := ""
+		for i := range times {
+			timeString += times[i]
+			distanceString += distances[i]
+		}
+		times = []string{timeString}
+		distances = []string{distanceString}
+	}
 	for i := range times {
 		a := -1
 		b, _ := strconv.Atoi(times[i])

@@ -31,6 +31,7 @@ func TestA(t *testing.T) {
 }
 
 func TestAAnimated(t *testing.T) {
+	t.Skipf("ignore animation tests")
 	// util.ForceNoWindow = true
 	Test = true
 	input := core.FromFile()

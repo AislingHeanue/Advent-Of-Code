@@ -19,3 +19,15 @@ QQQJA 483`)
 
 	require.Equal(t, 5905, result)
 }
+
+func TestBSmall(t *testing.T) {
+	input := core.FromLiteral(`3JJJJ 1
+JJJJJ 10
+TTTTT 100
+KKKKK 1000
+22222 10000`)
+
+	result := partB(input)
+
+	require.Equal(t, 25413, result)
+}

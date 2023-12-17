@@ -31,12 +31,17 @@ func partA(challenge *core.Input) int {
 }
 
 func getNextValue(line string) int {
+	numbers := makeNumbers(line)
+	return getPolynomial(numbers)(len(numbers))
+}
+
+func makeNumbers(line string) []int {
 	numberStrings := strings.Split(line, " ")
 	numbers := make([]int, len(numberStrings))
 	for i := range numberStrings {
 		numbers[i], _ = strconv.Atoi(numberStrings[i])
 	}
-	return getPolynomial(numbers)(len(numbers))
+	return numbers
 }
 
 func getPolynomial(ys []int) func(x int) int {

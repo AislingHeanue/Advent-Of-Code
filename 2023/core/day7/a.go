@@ -40,10 +40,23 @@ type Hand struct {
 }
 
 var powerList = []string{"2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"}
+var powerListB = []string{"J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"}
 var handRe = regexp.MustCompile(`([2-9TJQKA])([2-9TJQKA])([2-9TJQKA])([2-9TJQKA])([2-9TJQKA]) (\d+)`)
 
 func partA(challenge *core.Input) int {
-	handList := core.InputMap[Hand](challenge, GetHand)
+	return solve(challenge, false)
+}
+
+func solve(challenge *core.Input, b bool) int {
+	var handList []Hand
+	var order []string
+	if b {
+		handList = core.InputMap[Hand](challenge, GetHandB)
+		order = powerListB
+	} else {
+		handList = core.InputMap[Hand](challenge, GetHandA)
+		order = powerList
+	}
 
 	sort.Slice(handList, func(i, j int) bool {
 		hand1 := handList[i]
@@ -53,7 +66,7 @@ func partA(challenge *core.Input) int {
 		}
 		for k := 0; k < 5; k++ {
 			if hand1.Cards[k] != hand2.Cards[k] {
-				return sliceIndex(powerList, hand1.Cards[k]) > sliceIndex(powerList, hand2.Cards[k])
+				return sliceIndex(order, hand1.Cards[k]) > sliceIndex(order, hand2.Cards[k])
 			}
 		}
 
@@ -78,7 +91,11 @@ func sliceIndex[T cmp.Ordered](slice []T, v T) int {
 	return -1
 }
 
-func GetHand(line string) Hand {
+func GetHandA(line string) Hand {
+	return GetHand(line, false)
+}
+
+func GetHand(line string, b bool) Hand {
 	// []string{full match, 5 numbers, bid}
 	regexRes := handRe.FindStringSubmatch(line)
 	cards := [5]string{"", "", "", "", ""}
@@ -88,8 +105,19 @@ func GetHand(line string) Hand {
 	bid, _ := strconv.Atoi(regexRes[6])
 
 	handCountsMap := make(map[string]int)
-	for _, card := range cards {
-		handCountsMap[card] += 1
+	jacks := 0
+	if b {
+		for _, card := range cards {
+			if card != "J" {
+				handCountsMap[card] += 1
+			} else {
+				jacks++
+			}
+		}
+	} else {
+		for _, card := range cards {
+			handCountsMap[card] += 1
+		}
 	}
 	handCountsList := []int{}
 	for _, value := range handCountsMap {
@@ -98,6 +126,16 @@ func GetHand(line string) Hand {
 	sort.Slice(handCountsList, func(i, j int) bool {
 		return handCountsList[i] > handCountsList[j]
 	})
+
+	// code for part B
+	if len(handCountsList) == 0 {
+		return Hand{
+			cards,
+			FiveOfAKind,
+			bid,
+		} // five jacks
+	}
+	handCountsList[0] += jacks
 
 	handType := HighCard
 	if handCountsList[0] == 5 {

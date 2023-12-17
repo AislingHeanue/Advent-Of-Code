@@ -78,10 +78,7 @@ func partA(challenge *core.Input) int {
 }
 
 func move(currentTile util.Point2D, direction Direction, count int, tiles util.Matrix[rune], distances *util.UnorderedMatrix[DistanceEntry]) {
-	d := DistanceEntry{0, false, false, false, false}
-	if currentTile.X != -1 {
-		d = distances.MustGet(currentTile.Y, currentTile.X)
-	}
+	d, _ := distances.Get(currentTile.Y, currentTile.X)
 
 	if count < d.distance || d.distance == 0 {
 		d.distance = count //want distances to be overwritten each time (purely because it looks nice)
@@ -97,7 +94,7 @@ func move(currentTile util.Point2D, direction Direction, count int, tiles util.M
 			return //we've already been here in this direction, must be a loop
 		}
 		d.hasUp = true
-		distances.MustSet(currentTile.Y, currentTile.X, d)
+		_ = distances.Set(currentTile.Y, currentTile.X, d)
 		currentTile.Y -= 1
 	case Down:
 		if d.hasDown {
@@ -105,23 +102,22 @@ func move(currentTile util.Point2D, direction Direction, count int, tiles util.M
 		}
 		d.hasDown = true
 
-		distances.MustSet(currentTile.Y, currentTile.X, d)
+		_ = distances.Set(currentTile.Y, currentTile.X, d)
 		currentTile.Y += 1
 	case Left:
 		if d.hasLeft {
 			return
 		}
 		d.hasLeft = true
-		distances.MustSet(currentTile.Y, currentTile.X, d)
+		_ = distances.Set(currentTile.Y, currentTile.X, d)
 		currentTile.X -= 1
 	case Right:
 		if d.hasRight {
 			return
 		}
 		d.hasRight = true
-		if currentTile.X != -1 {
-			distances.MustSet(currentTile.Y, currentTile.X, d)
-		}
+		_ = distances.Set(currentTile.Y, currentTile.X, d)
+
 		currentTile.X += 1
 	}
 
