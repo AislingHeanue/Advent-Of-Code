@@ -71,3 +71,7 @@ func Abs[V ~float64 | ~int](x V) V {
 
 	return x
 }
+
+func Lcm(y, x int) int {
+	return y * x / Gcd(y, x)
+}
