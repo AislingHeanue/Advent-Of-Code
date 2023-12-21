@@ -2,7 +2,6 @@ package day4
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
 	"github.com/spf13/cobra"
@@ -20,11 +19,10 @@ func bCommand() *cobra.Command {
 
 func partB(challenge *core.Input) int {
 	lines := challenge.LineSlice()
-	scoreCache = make(map[int]int)
-	re := regexp.MustCompile(`(\d+)`)
+	scoreCache := make(map[int]int)
 	total := 0
 	for i := 0; i < len(lines); i++ {
-		total += 1 + scoreLine(lines, i, re, true)
+		total += 1 + scoreLine(lines, i, true, &scoreCache)
 	}
 
 	return total

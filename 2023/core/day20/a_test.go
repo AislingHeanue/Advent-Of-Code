@@ -16,7 +16,6 @@ func TestA(t *testing.T) {
 %b -> c
 %c -> inv
 &inv -> a`)
-	input = core.FromFile()
 	result := partA(input)
 
 	require.Equal(t, 32000000, result)

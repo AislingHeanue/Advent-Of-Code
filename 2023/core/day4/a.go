@@ -25,11 +25,10 @@ func partA(challenge *core.Input) int {
 	// util.EbitenSetup()
 	// defer util.AwaitClosure()
 	total := 0
-	re := regexp.MustCompile(`(\d+)`)
-
+	scoreCache := make(map[int]int)
 	lines := challenge.LineSlice()
 	for i := range lines {
-		total += scoreLine(lines, i, re, false)
+		total += scoreLine(lines, i, false, &scoreCache)
 	}
 
 	return total
@@ -42,10 +41,10 @@ func value(matches int) int {
 	return util.Power(2, matches-1)
 }
 
-var scoreCache map[int]int
-
-func scoreLine(lines []string, index int, re *regexp.Regexp, b bool) int {
-	total, ok := scoreCache[index]
+func scoreLine(lines []string, index int, b bool, scoreCache *map[int]int) int {
+	re := regexp.MustCompile(`(\d+)`)
+	cache := *scoreCache
+	total, ok := cache[index]
 	if ok {
 		return total
 	}
@@ -62,9 +61,12 @@ func scoreLine(lines []string, index int, re *regexp.Regexp, b bool) int {
 	}
 	if b {
 		for k := index + 1; k <= matches+index; k++ {
-			total += 1 + scoreLine(lines, k, re, true)
+			total += 1 + scoreLine(lines, k, true, scoreCache)
 		}
-		scoreCache[index] = total
+		cache = *scoreCache
+		cache[index] = total
+		*scoreCache = cache
+
 	} else {
 		total += value(matches)
 	}

@@ -33,13 +33,6 @@ type Rule struct {
 	sendTo  string
 }
 
-var re1 = regexp.MustCompile(`([a-z]+)\{([xmas])([<>])(\d+):([a-zAR]+)+,` +
-	`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
-	`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
-	`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
-	`([a-zAR]+)\}`)
-var re2 = regexp.MustCompile(`\{x=(\d+),m=(\d+),a=(\d+),s=(\d+)\}`)
-
 var instructionsMap map[string]Instruction
 
 func partA(challenge *core.Input) int {
@@ -75,6 +68,7 @@ func makeInstructionMap(challenge *core.Input) []string {
 }
 
 func processItem(line string) int {
+	re2 := regexp.MustCompile(`\{x=(\d+),m=(\d+),a=(\d+),s=(\d+)\}`)
 	item := make(map[string]int)
 	regexRes := re2.FindStringSubmatch(line)
 	item["x"], _ = strconv.Atoi(regexRes[1])
@@ -112,6 +106,11 @@ func processItem(line string) int {
 }
 
 func getInstruction(line string) Instruction {
+	re1 := regexp.MustCompile(`([a-z]+)\{([xmas])([<>])(\d+):([a-zAR]+)+,` +
+		`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
+		`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
+		`(?:([xmas])([<>])(\d+):([a-zAR]+),)?` +
+		`([a-zAR]+)\}`)
 	regexRes := re1.FindStringSubmatch(line)
 	// fmt.Println(regexRes)
 	rules := []Rule{}
