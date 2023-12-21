@@ -28,6 +28,10 @@ const (
 	Bottom
 	Left
 	Right
+	TopLeft
+	TopRight
+	BottomLeft
+	BottomRight
 )
 
 func partB(challenge *core.Input) int {
@@ -51,41 +55,46 @@ func partB(challenge *core.Input) int {
 	startTiles = append(startTiles, util.Point2D{Y: h - 1, X: startTiles[0].X})
 	startTiles = append(startTiles, util.Point2D{Y: startTiles[0].Y, X: 0})
 	startTiles = append(startTiles, util.Point2D{Y: startTiles[0].Y, X: w - 1})
+	startTiles = append(startTiles, util.Point2D{Y: 0, X: 0})
+	startTiles = append(startTiles, util.Point2D{Y: 0, X: w - 1})
+	startTiles = append(startTiles, util.Point2D{Y: h - 1, X: 0})
+	startTiles = append(startTiles, util.Point2D{Y: h - 1, X: w - 1})
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 9; i++ {
 		distances = append(distances, getDistances(startTiles[i], tiles)) // the maximum distance from any start is 195 < 2*131
 	}
 
 	// mathematics!
+	// i've made several assumptions here
+	// the shape is square
+	// it takes exactly h steps to traverse the grid left-to-right and top-to-bottom
+	// there is a gap of .'s between each copy of the grid too (so we know exactly how long it takes to get to a corner)
+	// steps is odd (okay that one is just because I don't want to do boolean arithmetic)
+	// n is large enough such that the tiles 2 away from the edges are all completely filled (this introduces the corner cases i spent hours forgetting about)
+	// probably some other things to be honest, it's not a very good coding question. It's a logic puzzle where you're not told what pieces
+	// you're given, or even the fact that you're meant to be looking for extra pieces.
 	steps := 26501365
-	// steps := 9
-	x := (steps - halfH - h) / h
+	x := (steps - halfH) / h
 	evenDots := 4*(x/2)*(x/2) + 4*(x/2)
 	oddDots := (2*x + 2*x*x) - evenDots
 	xEven := x%2 == 0
 	n := (steps - halfH) % h
-	// distancesLocal := distances
-	// fmt.Print(distancesLocal)
 	total :=
 		getNumReachable(2*h, false, Center) + // okay so i might be assuming steps is odd here, just, pretend I'm not
 			getNumReachable(2*h, false, Left)*oddDots + // center tiles (they enter from multiple directions but its all the same in the end)
 			getNumReachable(2*h, true, Left)*evenDots +
-			getNumReachable(n+h, !xEven, Left) + // the extreme edges of the near edge tiles
-			getNumReachable(n+h, !xEven, Right) +
-			getNumReachable(n+h, !xEven, Top) +
-			getNumReachable(n+h, !xEven, Bottom) +
-			getNumReachable(n, xEven, Left) + // the extreme edges of the edge tiles
-			getNumReachable(n, xEven, Right) +
-			getNumReachable(n, xEven, Top) +
-			getNumReachable(n, xEven, Bottom) +
-			getNumReachable(n+h, !xEven, Left, Top)*(x) + // diagonals of the near edge tiles
-			getNumReachable(n+h, !xEven, Right, Top)*(x) +
-			getNumReachable(n+h, !xEven, Left, Bottom)*(x) +
-			getNumReachable(n+h, !xEven, Right, Bottom)*(x) +
-			getNumReachable(n, xEven, Left, Top)*(x+1) + // the diagonals of the edge tiles
-			getNumReachable(n, xEven, Right, Top)*(x+1) +
-			getNumReachable(n, xEven, Left, Bottom)*(x+1) +
-			getNumReachable(n, xEven, Right, Bottom)*(x+1)
+			getNumReachable(n, !xEven, Left) + // the extreme edges of the edge tiles
+			getNumReachable(n, !xEven, Right) +
+			getNumReachable(n, !xEven, Top) +
+			getNumReachable(n, !xEven, Bottom) +
+			getNumReachable(n+halfH-1, xEven, TopLeft)*(x) + // the diagonals of the edge tiles
+			getNumReachable(n+halfH-1, xEven, TopRight)*(x) +
+			getNumReachable(n+halfH-1, xEven, BottomLeft)*(x) +
+			getNumReachable(n+halfH-1, xEven, BottomRight)*(x) +
+			getNumReachable(n-halfH, !xEven, TopLeft)*(x+1) + //the small triangles on the outer fringes i forgot about
+			getNumReachable(n-halfH, !xEven, TopRight)*(x+1) +
+			getNumReachable(n-halfH, !xEven, BottomLeft)*(x+1) +
+			getNumReachable(n-halfH, !xEven, BottomRight)*(x+1)
 
 	return total
 }
@@ -99,7 +108,6 @@ func getNumReachable(n int, even bool, allowedDirections ...Direction) int {
 			}
 		}
 	}
-	// fmt.Println(len(reachable))
 
 	return len(reachable)
 
@@ -149,3 +157,17 @@ func getNumReachable(n int, even bool, allowedDirections ...Direction) int {
 
 // new realisation!
 // n is 130, screw the # tiles they'll always be full too
+
+// back to the drawing board
+//            ?!?
+//           ?!2!?
+//          ?!212!?
+//         ?!21212!?
+//        ?!2121212!?
+//        !212111212!
+//        ?!2121212!?
+//         ?!21212!?
+//          ?!212!?
+//           ?!2!?
+//            ?!?
+// i forgot an entire class of points! the tiny little triangles that deal with the overflow from the sides of the diagonal "!"
