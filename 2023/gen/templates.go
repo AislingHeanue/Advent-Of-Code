@@ -43,6 +43,19 @@ func CreateCommand() *cobra.Command {
 	}
 
 	addDays(root)
+	root.AddCommand(&cobra.Command{
+		Use: "all",
+		Short: "Run all days",
+		Long: "Gives the result from every day that has been completed",
+		Run: func(_ *cobra.Command, _ []string) {
+			util.ForceNoWindow = true
+			{{- range $day := seq 1 .N }}
+			fmt.Printf("Day {{ $day }}\n")
+			day{{ $day }}.RunQuestions()
+			fmt.Println()
+			{{- end }}
+		},
+	})
 
 	return root
 }
@@ -50,11 +63,21 @@ func CreateCommand() *cobra.Command {
 
 	glueTemplate = `package day{{ .N }}
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core"
+	"github.com/spf13/cobra"
+)
 
 func AddCommandsTo(root *cobra.Command) {
 	root.AddCommand(aCommand())
     root.AddCommand(bCommand())
+}
+
+func RunQuestions() {
+	fmt.Printf("Part A: %d\n", partA(core.FromFile()))
+	fmt.Printf("Part B: %d\n", partB(core.FromFile()))
 }
 `
 
