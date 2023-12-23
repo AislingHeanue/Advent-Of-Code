@@ -30,6 +30,7 @@ import (
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day20"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day21"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day22"
+	"github.com/AislingHeanue/Advent-Of-Code/2023/core/day23"
 	"github.com/AislingHeanue/Advent-Of-Code/2023/util"
 )
 	
@@ -57,6 +58,7 @@ func addDays(root *cobra.Command) {
 	day20.AddCommandsTo(root)
 	day21.AddCommandsTo(root)
 	day22.AddCommandsTo(root)
+	day23.AddCommandsTo(root)
 }
 
 
@@ -150,6 +152,9 @@ func CreateCommand() *cobra.Command {
 			fmt.Println()
 			fmt.Printf("Day 22\n")
 			day22.RunQuestions()
+			fmt.Println()
+			fmt.Printf("Day 23\n")
+			day23.RunQuestions()
 			fmt.Println()
 		},
 	})
