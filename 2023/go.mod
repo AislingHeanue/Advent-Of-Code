@@ -6,6 +6,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.6.3
 	github.com/spf13/viper v1.18.1
 	github.com/stretchr/testify v1.8.4
+	github.com/aclements/go-z3 v0.0.0-20220809013456-4675d5f90ca5
 )
 
 require (
