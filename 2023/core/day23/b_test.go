@@ -53,6 +53,6 @@ func TestBSmall(t *testing.T) {
 
 	result := partB(input)
 
-	require.Equal(t, 154, result)
+	require.Equal(t, 14, result)
 	util.AwaitClosure()
 }

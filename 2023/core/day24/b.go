@@ -36,7 +36,7 @@ func partB(challenge *core.Input) int {
 	vy := ctx.Const("vy", ctx.IntSort()).(z3.Int)
 	vz := ctx.Const("vz", ctx.IntSort()).(z3.Int)
 
-	for i := range stones[:10] { // checking if 3 stones is enough to fully define the system
+	for i := range stones[:5] { // checking if 3 stones is enough to fully define the system
 		stone := stones[i]
 		spx := ctx.FromInt(int64(stone.Position.X), ctx.IntSort()).(z3.Int)
 		spy := ctx.FromInt(int64(stone.Position.Y), ctx.IntSort()).(z3.Int)
