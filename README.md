@@ -28,6 +28,20 @@ After building, the code can be run by typing the question name and part (a or b
 Part 1|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️
 Part 2|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️|✔️
 
+## Visualisations
+
+Day 10: Constructing a closed path
+
+![Day 10 part 1](2023/core/day10/output.gif)
+
+Day 16: Following a set of branching lines (aka squiggles!)
+
+![Day 16 part 1](2023/core/day16/output.gif)
+
+Day 18: Constructing a closed path, again
+
+![Day 18 part 1](2023/core/day18/output.png)
+
 ## Comments
 ### Day 2
 This was the day I decided to teach myself enough regex to carry me through the rest of the season. Regexes are almost fun now.
@@ -46,6 +60,7 @@ I'm not sure of how often I'll get use out of the even-odd method for determinin
 
 ### Day 12
 Dynamic Programming! The thing I've been avoiding forever. It's still pretty scary to me but I was able to come up with a general method for this question eventually.
+
 ![Question 12 notes](2023/core/day12/notes.png)
 
 ### Day 17
@@ -53,6 +68,7 @@ Dijkstra, but you're able to jump between 1 and 3 nodes at once. This one was re
 
 ### Day 20
 Another question which relies on inspecting the input and realising the solution is to reverse engineer the machine to realise that it emulates a system with 4 12-bit registers that requires you to find the lowest common multiple of the values encoded in them. It really annoyed me that there was no indication that the input was special, and the alternative (to try and brute force a 48-bit state machine into a certain configuration) almost scared me away from this question.
+
 ![Question 20 Diagram (this took far too long to make)](2023/core/day20/notes.png)
 
 ### Day 21
@@ -63,15 +79,13 @@ Another case of "find the hidden property of the input that reduces this to some
 My slowest question (part 2) runs in 6 seconds. The longest path problem is interesting but I don't see any obvious ways of optimising it except for maybe adding some caching.
 
 ### Day 24
-This one went really, really heavy on the linear algebra, which I wasn't expecting. I had to import a package for this because I don't see any way of solving this without symbolic programming. But on the plus side, I guess I know symbolic programming now, no system of equations will ever stop me now.
+This one went really, really heavy on the linear algebra, which I wasn't expecting. I had to import a package for this because I don't see any way of solving this without symbolic programming. On the plus side, I guess I know symbolic programming now, so no system of equations can ever stop me.
+
 ![Day 24 Maths](2023/core/day24/notes.png)
 
 ### Day 25
 Day25s are usually easy but today was definitely an exception. Finding the right package to import was a huge pain but after that it was alright. This is the second day in a row where there would have been a very well known python package to import, but to complete it in Go I had to do a fair amount of searching, implementing, running into bugs, attempts at bug fixing before resigning and finding a new package, and reimplementing. 
 
-
-
-<!--- TODO: ## Animations (GIFs and add specific commands for the animations for 10 and 16a) also 18a-->
 
 ## Advent of Code 2022
 Language: Python (Jupyter Notebook)
