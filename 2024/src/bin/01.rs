@@ -6,19 +6,23 @@ use regex::Regex;
 
 pub fn part_one(input: &str) -> Option<u32> {
     let re = Regex::new("([0-9]+)\\s+([0-9]+)").unwrap();
-    let mut left = Vec::new();
-    let mut right = Vec::new();
-    input.lines().for_each(|line| {
-        let captures = re.captures(line).unwrap();
-        left.push(captures[1].parse::<i32>().unwrap());
-        right.push(captures[2].parse::<i32>().unwrap());
-    });
-    let mut total = 0;
+    let (mut left, mut right): (Vec<i32>, Vec<i32>) = input
+        .lines()
+        .map(|line| re.captures(line).unwrap())
+        .map(|captures| {
+            (
+                captures[1].parse::<i32>().unwrap(),
+                captures[2].parse::<i32>().unwrap(),
+            )
+        })
+        .unzip();
+
     left.sort();
     right.sort();
-    for i in 0..left.len() {
-        total += (left[i] - right[i]).abs();
-    }
+    let total = left
+        .into_iter()
+        .zip(right)
+        .fold(0, |acc, entry| acc + (entry.0 - entry.1).abs());
 
     Some(total.try_into().unwrap())
 }
@@ -27,17 +31,16 @@ pub fn part_two(input: &str) -> Option<u32> {
     let re = Regex::new("([0-9]+)\\s+([0-9]+)").unwrap();
     let mut left = Vec::new();
     let mut right: HashMap<u32, u32> = HashMap::new();
-    input.lines().for_each(|line| {
+    for line in input.lines() {
         let captures = re.captures(line).unwrap();
         left.push(captures[1].parse::<u32>().unwrap());
-        let right_key = &captures[2].parse::<u32>().unwrap();
-        let right_val = right.get(right_key).or(Some(&0)).unwrap();
-        right.insert(*right_key, right_val + 1);
-    });
-    let mut total = 0;
-    for i in 0..left.len() {
-        total += left[i] * right.get(&left[i]).or(Some(&0)).unwrap();
+        *right
+            .entry(captures[2].parse::<u32>().unwrap())
+            .or_default() += 1;
     }
+    let total = left.into_iter().fold(0, |acc, entry| {
+        acc + entry * right.get(&entry).or(Some(&0)).unwrap()
+    });
 
     Some(total)
 }
