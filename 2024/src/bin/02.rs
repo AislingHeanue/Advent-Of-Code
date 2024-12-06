@@ -13,23 +13,15 @@ pub fn part_one(input: &str) -> Option<u32> {
                     .map(|(first, second)| first - second)
             })
             .filter(|diffrences| {
-                let all_same_sign = diffrences
-                    .clone()
-                    .reduce(|acc, e| acc + e)
-                    .unwrap()
-                    .abs()
-                    .eq(&diffrences
-                        .clone()
-                        .into_iter()
-                        .reduce(|acc, e| acc.abs() + e.abs())
-                        .unwrap());
+                let all_positive = diffrences.clone().into_iter().all(|val| val > 0);
+                let all_negative = diffrences.clone().into_iter().all(|val| val < 0);
 
                 let all_between_one_and_three = diffrences
                     .clone()
                     .into_iter()
                     .all(|val| val.abs() <= 3 && val.abs() >= 1);
 
-                all_same_sign && all_between_one_and_three
+                (all_positive || all_negative) && all_between_one_and_three
             })
             .count()
             .try_into()
@@ -57,23 +49,15 @@ pub fn part_two(input: &str) -> Option<u32> {
                         .tuple_windows()
                         .map(|(first, second)| first - second);
 
-                    let all_same_sign = diffrences
-                        .clone()
-                        .reduce(|acc, e| acc + e)
-                        .unwrap()
-                        .abs()
-                        .eq(&diffrences
-                            .clone()
-                            .into_iter()
-                            .reduce(|acc, e| acc.abs() + e.abs())
-                            .unwrap());
+                    let all_positive = diffrences.clone().into_iter().all(|val| val > 0);
+                    let all_negative = diffrences.clone().into_iter().all(|val| val < 0);
 
                     let all_between_one_and_three = diffrences
                         .clone()
                         .into_iter()
                         .all(|val| val.abs() <= 3 && val.abs() >= 1);
 
-                    all_same_sign && all_between_one_and_three
+                    (all_positive || all_negative) && all_between_one_and_three
                 })
             })
             .count()
