@@ -10,29 +10,27 @@ pub fn part_one(input: &str) -> Option<u32> {
                     .into_iter()
                     .map(|num| num.parse::<i32>().unwrap())
                     .tuple_windows()
-                    .fold(
-                        /*safe and not increasing or decreasing yet*/ (true, 0),
-                        |acc, (first, second)| {
-                            if !acc.0 {
-                                return (false, 0);
-                            }
-                            if acc.1 * (first - second) < 0 {
-                                // last first difference was a different sign to this one, not safe
-                                //println!("changed sign, {}, {}", first, second);
-                                return (false, 0);
-                            } else {
-                                let difference = first - second;
-                                if (first - second).abs() < 1 || (first - second).abs() > 3 {
-                                    //println!("bad difference, {}, {}", first, second);
-                                    return (false, 0);
-                                }
-                                return (true, difference);
-                            }
-                        },
-                    )
-                    .0
+                    .map(|(first, second)| first - second)
             })
-            .filter(|safe| *safe)
+            .filter(|diffrences| {
+                let all_same_sign = diffrences
+                    .clone()
+                    .reduce(|acc, e| acc + e)
+                    .unwrap()
+                    .abs()
+                    .eq(&diffrences
+                        .clone()
+                        .into_iter()
+                        .reduce(|acc, e| acc.abs() + e.abs())
+                        .unwrap());
+
+                let all_between_one_and_three = diffrences
+                    .clone()
+                    .into_iter()
+                    .all(|val| val.abs() <= 3 && val.abs() >= 1);
+
+                all_same_sign && all_between_one_and_three
+            })
             .count()
             .try_into()
             .unwrap(),
@@ -48,44 +46,35 @@ pub fn part_two(input: &str) -> Option<u32> {
                 line.split(" ")
                     .into_iter()
                     .map(|num| num.parse::<i32>().unwrap())
-                    .collect()
             })
-            .map(|num_list: Vec<i32>| {
-                (0..num_list.len())
-                    .map(|i| {
-                        let mut smaller_num_list = num_list.clone();
-                        smaller_num_list.remove(i);
-                        smaller_num_list
+            .filter(|nums| {
+                let num_list: Vec<i32> = nums.clone().collect();
+                (0..num_list.len()).any(|i| {
+                    let mut smaller_num_list = num_list.clone();
+                    smaller_num_list.remove(i);
+                    let diffrences = smaller_num_list
+                        .into_iter()
+                        .tuple_windows()
+                        .map(|(first, second)| first - second);
+
+                    let all_same_sign = diffrences
+                        .clone()
+                        .reduce(|acc, e| acc + e)
+                        .unwrap()
+                        .abs()
+                        .eq(&diffrences
+                            .clone()
                             .into_iter()
-                            .tuple_windows()
-                            .fold(
-                                /*safe and not increasing or decreasing yet*/ (true, 0),
-                                |acc, (first, second)| {
-                                    if !acc.0 {
-                                        return (false, 0);
-                                    }
-                                    if acc.1 * (first - second) < 0 {
-                                        // last first difference was a different sign to this one, not safe
-                                        //println!("changed sign, {}, {}", first, second);
-                                        return (false, 0);
-                                    } else {
-                                        let difference = first - second;
-                                        if (first - second).abs() < 1 || (first - second).abs() > 3
-                                        {
-                                            //println!("bad difference, {}, {}", first, second);
-                                            return (false, 0);
-                                        }
-                                        return (true, difference);
-                                    }
-                                },
-                            )
-                            .0
-                    })
-                    .any(|this| this)
-            })
-            .filter(|safe| {
-                //println!("{}", *safe);
-                *safe
+                            .reduce(|acc, e| acc.abs() + e.abs())
+                            .unwrap());
+
+                    let all_between_one_and_three = diffrences
+                        .clone()
+                        .into_iter()
+                        .all(|val| val.abs() <= 3 && val.abs() >= 1);
+
+                    all_same_sign && all_between_one_and_three
+                })
             })
             .count()
             .try_into()
