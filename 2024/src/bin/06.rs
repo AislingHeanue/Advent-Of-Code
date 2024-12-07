@@ -88,43 +88,75 @@ pub fn part_two(input: &str) -> Option<u32> {
     if start_position == (0, 0) {
         panic!("couldn't find ^ in the input")
     }
+    let mut position = start_position;
+    let mut visited: HashSet<(i32, i32)> = HashSet::new();
+    let mut visited_with_direction: HashSet<((i32, i32), Direction)> = HashSet::new();
+    visited.insert(position);
+    let mut direction = Direction::Up;
     let mut total = 0;
-    for i in 0..input.len() {
-        for j in 0..input[0].len() {
-            if input[i][j] != '.' {
-                continue;
+    loop {
+        let next_position = (
+            position.0 + direction.get_offset().0,
+            position.1 + direction.get_offset().1,
+        );
+        if next_position.0 < 0
+            || next_position.1 < 0
+            || next_position.0 >= input.len().try_into().unwrap()
+            || next_position.1 >= input[0].len().try_into().unwrap()
+        {
+            break;
+        }
+        let next_char = input[next_position.0 as usize][next_position.1 as usize];
+        if next_char == '#' {
+            direction = direction.next_direction();
+        } else {
+            if visited.insert(next_position) {
+                if check_if_placing_a_wall_here_would_cause_it_to_loop(
+                    &input,
+                    &next_position,
+                    position.clone(),
+                    direction.clone().next_direction(),
+                    visited_with_direction.clone(),
+                ) {
+                    total += 1;
+                }
             }
-            let mut visited: HashSet<((i32, i32), Direction)> = HashSet::new();
-            let mut position = start_position;
-            let mut direction = Direction::Up;
-            visited.insert((position, direction.clone()));
-            loop {
-                let next_position = (
-                    position.0 + direction.get_offset().0,
-                    position.1 + direction.get_offset().1,
-                );
-                if next_position.0 < 0
-                    || next_position.1 < 0
-                    || next_position.0 >= input.len().try_into().unwrap()
-                    || next_position.1 >= input[0].len().try_into().unwrap()
-                {
-                    break;
-                }
-                let next_char = input[next_position.0 as usize][next_position.1 as usize];
-                if next_char == '#' || (i as i32, j as i32) == next_position {
-                    direction = direction.next_direction();
-                } else {
-                    position = next_position;
-                    if !visited.insert((position, direction.clone())) {
-                        total += 1;
-                        break;
-                    }
-                }
+            position = next_position;
+            visited_with_direction.insert((position, direction.clone()));
+        }
+    }
+    Some(total)
+}
+
+fn check_if_placing_a_wall_here_would_cause_it_to_loop(
+    input: &Vec<Vec<char>>,
+    position_of_wall: &(i32, i32),
+    mut position: (i32, i32),
+    mut direction: Direction,
+    mut visited_with_direction: HashSet<((i32, i32), Direction)>,
+) -> bool {
+    loop {
+        let next_position = (
+            position.0 + direction.get_offset().0,
+            position.1 + direction.get_offset().1,
+        );
+        if next_position.0 < 0
+            || next_position.1 < 0
+            || next_position.0 >= input.len().try_into().unwrap()
+            || next_position.1 >= input[0].len().try_into().unwrap()
+        {
+            return false;
+        }
+        let next_char = input[next_position.0 as usize][next_position.1 as usize];
+        if next_char == '#' || next_position == *position_of_wall {
+            direction = direction.next_direction();
+        } else {
+            position = next_position;
+            if !visited_with_direction.insert((position, direction.clone())) {
+                return true;
             }
         }
     }
-
-    Some(total)
 }
 
 #[cfg(test)]
