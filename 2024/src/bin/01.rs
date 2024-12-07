@@ -1,48 +1,36 @@
 advent_of_code::solution!(1);
-
-use std::collections::HashMap;
-
 use regex::Regex;
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let re = Regex::new("([0-9]+)\\s+([0-9]+)").unwrap();
-    let (mut left, mut right): (Vec<i32>, Vec<i32>) = input
-        .lines()
-        .map(|line| re.captures(line).unwrap())
-        .map(|captures| {
-            (
-                captures[1].parse::<i32>().unwrap(),
-                captures[2].parse::<i32>().unwrap(),
-            )
-        })
-        .unzip();
-
+    let (mut left, mut right) = get_vectors(input);
     left.sort();
     right.sort();
-    let total = left
-        .into_iter()
-        .zip(right)
-        .fold(0, |acc, entry| acc + (entry.0 - entry.1).abs());
-
-    Some(total.try_into().unwrap())
+    Some(
+        left.into_iter()
+            .zip(right)
+            .fold(0, |acc, entry| acc + entry.0.abs_diff(entry.1)),
+    )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let re = Regex::new("([0-9]+)\\s+([0-9]+)").unwrap();
-    let mut left = Vec::new();
-    let mut right: HashMap<u32, u32> = HashMap::new();
-    for line in input.lines() {
-        let captures = re.captures(line).unwrap();
-        left.push(captures[1].parse::<u32>().unwrap());
-        *right
-            .entry(captures[2].parse::<u32>().unwrap())
-            .or_default() += 1;
-    }
-    let total = left.into_iter().fold(0, |acc, entry| {
-        acc + entry * right.get(&entry).unwrap_or(&0)
-    });
+    let (left, right) = get_vectors(input);
+    Some(left.into_iter().fold(0, |acc, entry| {
+        acc + entry * right.iter().filter(|num| **num == entry).count() as u32
+    }))
+}
 
-    Some(total)
+pub fn get_vectors(input: &str) -> (Vec<u32>, Vec<u32>) {
+    let re = Regex::new("([0-9]+)\\s+([0-9]+)").unwrap();
+    input
+        .lines()
+        .map(|line| re.captures(line).unwrap().extract::<2>().1)
+        .map(|captures| {
+            (
+                captures[0].parse::<u32>().unwrap(),
+                captures[1].parse::<u32>().unwrap(),
+            )
+        })
+        .collect()
 }
 
 #[cfg(test)]
