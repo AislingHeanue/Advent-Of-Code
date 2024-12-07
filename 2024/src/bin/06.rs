@@ -110,16 +110,16 @@ pub fn part_two(input: &str) -> Option<u32> {
         if next_char == '#' {
             direction = direction.next_direction();
         } else {
-            if visited.insert(next_position) {
-                if check_if_placing_a_wall_here_would_cause_it_to_loop(
+            if visited.insert(next_position)
+                && check_if_placing_a_wall_here_would_cause_it_to_loop(
                     &input,
                     &next_position,
-                    position.clone(),
+                    position,
                     direction.clone().next_direction(),
                     visited_with_direction.clone(),
-                ) {
-                    total += 1;
-                }
+                )
+            {
+                total += 1;
             }
             position = next_position;
             visited_with_direction.insert((position, direction.clone()));
@@ -129,7 +129,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 }
 
 fn check_if_placing_a_wall_here_would_cause_it_to_loop(
-    input: &Vec<Vec<char>>,
+    input: &[Vec<char>],
     position_of_wall: &(i32, i32),
     mut position: (i32, i32),
     mut direction: Direction,

@@ -39,7 +39,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             .or_default() += 1;
     }
     let total = left.into_iter().fold(0, |acc, entry| {
-        acc + entry * right.get(&entry).or(Some(&0)).unwrap()
+        acc + entry * right.get(&entry).unwrap_or(&0)
     });
 
     Some(total)

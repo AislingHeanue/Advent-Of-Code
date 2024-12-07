@@ -4,21 +4,18 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(
         input
             .lines()
-            .into_iter()
             .map(|line| {
                 line.split(" ")
-                    .into_iter()
                     .map(|num| num.parse::<i32>().unwrap())
                     .tuple_windows()
                     .map(|(first, second)| first - second)
             })
             .filter(|differences| {
-                let all_positive = differences.clone().into_iter().all(|val| val > 0);
-                let all_negative = differences.clone().into_iter().all(|val| val < 0);
+                let all_positive = differences.clone().all(|val| val > 0);
+                let all_negative = differences.clone().all(|val| val < 0);
 
                 let all_between_one_and_three = differences
                     .clone()
-                    .into_iter()
                     .all(|val| val.abs() <= 3 && val.abs() >= 1);
 
                 (all_positive || all_negative) && all_between_one_and_three
@@ -33,12 +30,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(
         input
             .lines()
-            .into_iter()
-            .map(|line| {
-                line.split(" ")
-                    .into_iter()
-                    .map(|num| num.parse::<i32>().unwrap())
-            })
+            .map(|line| line.split(" ").map(|num| num.parse::<i32>().unwrap()))
             .filter(|nums| {
                 let num_list: Vec<i32> = nums.clone().collect();
                 (0..num_list.len()).any(|i| {
@@ -49,12 +41,11 @@ pub fn part_two(input: &str) -> Option<u32> {
                         .tuple_windows()
                         .map(|(first, second)| first - second);
 
-                    let all_positive = difference.clone().into_iter().all(|val| val > 0);
-                    let all_negative = difference.clone().into_iter().all(|val| val < 0);
+                    let all_positive = difference.clone().all(|val| val > 0);
+                    let all_negative = difference.clone().all(|val| val < 0);
 
                     let all_between_one_and_three = difference
                         .clone()
-                        .into_iter()
                         .all(|val| val.abs() <= 3 && val.abs() >= 1);
 
                     (all_positive || all_negative) && all_between_one_and_three
