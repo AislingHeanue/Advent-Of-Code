@@ -12,11 +12,11 @@ pub fn part_one(input: &str) -> Option<u32> {
                     .tuple_windows()
                     .map(|(first, second)| first - second)
             })
-            .filter(|diffrences| {
-                let all_positive = diffrences.clone().into_iter().all(|val| val > 0);
-                let all_negative = diffrences.clone().into_iter().all(|val| val < 0);
+            .filter(|differences| {
+                let all_positive = differences.clone().into_iter().all(|val| val > 0);
+                let all_negative = differences.clone().into_iter().all(|val| val < 0);
 
-                let all_between_one_and_three = diffrences
+                let all_between_one_and_three = differences
                     .clone()
                     .into_iter()
                     .all(|val| val.abs() <= 3 && val.abs() >= 1);
@@ -44,15 +44,15 @@ pub fn part_two(input: &str) -> Option<u32> {
                 (0..num_list.len()).any(|i| {
                     let mut smaller_num_list = num_list.clone();
                     smaller_num_list.remove(i);
-                    let diffrences = smaller_num_list
+                    let difference = smaller_num_list
                         .into_iter()
                         .tuple_windows()
                         .map(|(first, second)| first - second);
 
-                    let all_positive = diffrences.clone().into_iter().all(|val| val > 0);
-                    let all_negative = diffrences.clone().into_iter().all(|val| val < 0);
+                    let all_positive = difference.clone().into_iter().all(|val| val > 0);
+                    let all_negative = difference.clone().into_iter().all(|val| val < 0);
 
-                    let all_between_one_and_three = diffrences
+                    let all_between_one_and_three = difference
                         .clone()
                         .into_iter()
                         .all(|val| val.abs() <= 3 && val.abs() >= 1);
