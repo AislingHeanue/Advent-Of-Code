@@ -28,6 +28,7 @@ pub fn part_two(input: &str) -> Option<u64> {
     let (mut drive_vec, _num_free_space) = get_initial_drive(input);
 
     let mut right_index = drive_vec.len() - 1;
+
     while right_index > 0 {
         //while drive_vec[left_index] != -1 {
         //    left_index += 1;
@@ -39,33 +40,32 @@ pub fn part_two(input: &str) -> Option<u64> {
         //    free_space_here += 1;
         //}
         //
-        while drive_vec[right_index] == -1 {
+        while drive_vec[right_index] == -1 && right_index > 0 {
             right_index -= 1;
         }
         let current_right_num = drive_vec[right_index];
-        let mut length_to_move = 1;
-        while right_index > 1 && drive_vec[right_index] == current_right_num {
+        let mut length_to_move = 0;
+        while right_index > 0 && drive_vec[right_index] == current_right_num {
             right_index -= 1;
             length_to_move += 1;
         }
         let mut scanning_left_index = 0;
         let mut current_free_block_size = 0;
-        while scanning_left_index < right_index {
+        while scanning_left_index <= right_index {
             if drive_vec[scanning_left_index] == -1 {
                 current_free_block_size += 1;
                 if current_free_block_size == length_to_move {
                     for i in 0..length_to_move {
-                        drive_vec[scanning_left_index - i] = drive_vec[right_index + i];
-                        drive_vec[right_index + i] = -1;
-                        scanning_left_index = right_index; // trigger a break here
+                        drive_vec[scanning_left_index - i] = drive_vec[right_index + 1 + i];
+                        drive_vec[right_index + 1 + i] = -1;
                     }
+                    scanning_left_index = right_index + 1; // trigger a break here
                 }
             } else {
                 current_free_block_size = 0;
             }
             scanning_left_index += 1;
         }
-        right_index -= 1;
     }
     Some(
         drive_vec
