@@ -7,7 +7,7 @@ pub fn part_one(input: &str) -> Option<u64> {
     while num_free_space > 0 {
         let last = drive_vec.pop();
         if last == Some(-1) {
-            num_free_space = 1;
+            num_free_space -= 1;
             continue;
         }
         while left_free_index < drive_vec.len() && drive_vec[left_free_index] != -1 {
