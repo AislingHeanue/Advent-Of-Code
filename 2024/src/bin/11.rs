@@ -52,9 +52,9 @@ fn map_blink(
                 &vec![k * 2024]
             }
         };
-        //m.insert(*k, new_vals.clone());
-        //new_vals
+        //wm.insert(*k, new_vals.clone());
         //};
+        //new_vals
         for val in new_vals {
             *out_map.entry(*val).or_insert(0) += v;
         }
