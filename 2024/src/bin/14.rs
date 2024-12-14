@@ -1,9 +1,53 @@
 use core::f32;
-use std::collections::HashMap;
-
+use std::cmp::Ordering;
 advent_of_code::solution!(14);
 
 pub fn part_one(input: &str) -> Option<u32> {
+    let s = setup(input);
+    let (max_x, max_y) = s.maximums;
+    let (boundary_x, boundary_y) = s.boundaries;
+    let mut current_points = s.current_points;
+    for (x, y) in &mut current_points {
+        x.next(max_x, 100);
+        y.next(max_y, 100);
+    }
+    Some(
+        current_points
+            .into_iter()
+            .fold(vec![0, 0, 0, 0], |mut v, (x, y)| {
+                match (x.position.cmp(&boundary_x), y.position.cmp(&boundary_y)) {
+                    (Ordering::Less, Ordering::Less) => v[0] += 1,
+                    (Ordering::Greater, Ordering::Less) => v[1] += 1,
+                    (Ordering::Less, Ordering::Greater) => v[2] += 1,
+                    (Ordering::Greater, Ordering::Greater) => v[3] += 1,
+                    _ => {}
+                }
+                v
+            })
+            .iter()
+            .product(),
+    )
+}
+
+pub fn part_two(input: &str) -> Option<u32> {
+    let s = setup(input);
+    let (max_x, max_y) = s.maximums;
+    let (mut xs, mut ys): (Vec<Point>, Vec<Point>) = s.current_points.into_iter().unzip();
+    let mut steps = 0;
+    loop {
+        steps += 1;
+        for i in 0..xs.len() {
+            xs[i].next(max_x, 1);
+            ys[i].next(max_y, 1);
+        }
+        if xs.variance() * ys.variance() < 250000.0 {
+            break;
+        }
+    }
+    Some(steps)
+}
+
+fn setup(input: &str) -> Setup {
     let (max_x, max_y) = match &input[0..5] {
         "p=0,4" => (11, 7),
         _ => (101, 103),
@@ -11,145 +55,85 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     let (boundary_x, boundary_y) = ((max_x - 1) / 2, (max_y - 1) / 2);
 
-    let steps = 100;
     let bot_re = regex::Regex::new("p=(-?[0-9]+),(-?[0-9]+) v=(-?[0-9]+),(-?[0-9]+)").unwrap();
 
-    Some(
-        input
-            .lines()
-            .map(|line| {
-                bot_re
-                    .captures(line)
-                    .unwrap()
-                    .extract::<4>()
-                    .1
-                    .map(|num| num.parse::<i32>().unwrap())
-            })
-            .map(|res| {
-                (
-                    (res[0] + res[2] * steps) % max_x,
-                    (res[1] + res[3] * steps) % max_y,
-                )
-            })
-            .map(|(mut x, mut y)| {
-                if x < 0 {
-                    x += max_x;
-                }
-                if y < 0 {
-                    y += max_y;
-                }
-                (x, y)
-            })
-            .fold(HashMap::new(), |mut acc, (x, y)| {
-                if (..boundary_x).contains(&x) && (..boundary_y).contains(&y) {
-                    *acc.entry(Corner::TopLeft).or_insert(0) += 1;
-                } else if ((boundary_x + 1)..).contains(&x) && (..boundary_y).contains(&y) {
-                    *acc.entry(Corner::TopRight).or_insert(0) += 1;
-                } else if (..boundary_x).contains(&x) && ((boundary_y + 1)..).contains(&y) {
-                    *acc.entry(Corner::BottomLeft).or_insert(0) += 1;
-                } else if ((boundary_x + 1)..).contains(&x) && ((boundary_y + 1)..).contains(&y) {
-                    *acc.entry(Corner::BottomRight).or_insert(0) += 1;
-                }
-
-                acc
-            })
-            .into_iter()
-            .fold(1, |acc, (_, val)| acc * val),
-    )
-}
-
-pub fn part_two(input: &str) -> Option<u32> {
-    let (max_x, max_y) = match &input[0..5] {
-        "p=0,4" => (11, 7),
-        _ => (101, 103),
-    };
-    let bot_re = regex::Regex::new("p=(-?[0-9]+),(-?[0-9]+) v=(-?[0-9]+),(-?[0-9]+)").unwrap();
-
-    // current_state hold the current position and velocities of all particles, and the product of
-    // the variance in x and y values, and the number of steps taken.
-    type State = (Vec<(i32, i32, i32, i32)>, f32, u32);
-    let mut current_state: State = (
-        input
-            .lines()
-            .map(|line| {
-                bot_re
-                    .captures(line)
-                    .unwrap()
-                    .extract::<4>()
-                    .1
-                    .map(|num| num.parse::<i32>().unwrap())
-            })
-            .map(|res| (res[0], res[1], res[2], res[3]))
-            .collect(),
-        f32::INFINITY,
-        0,
-    );
-
-    while current_state.1 > 250000.0 {
-        current_state.2 += 1;
-        current_state.0 = current_state
-            .0
-            .into_iter()
-            .map(|res| {
-                (
-                    (res.0 + res.2) % max_x,
-                    (res.1 + res.3) % max_y,
-                    res.2,
-                    res.3,
-                )
-            })
-            .map(|(mut x, mut y, vx, vy)| {
-                if x < 0 {
-                    x += max_x;
-                }
-                if y < 0 {
-                    y += max_y;
-                }
-                (x, y, vx, vy)
-            })
-            .collect();
-
-        current_state.1 = current_state
-            .0
-            .iter()
-            .fold((Vec::new(), Vec::new()), |(mut xs, mut ys), e| {
-                xs.push(e.0);
-                ys.push(e.1);
-                (xs, ys)
-            })
-            .product_variance();
-    }
-
-    Some(current_state.2)
-}
-
-trait ProductVariance {
-    fn product_variance(&self) -> f32;
-}
-
-impl ProductVariance for (Vec<i32>, Vec<i32>) {
-    fn product_variance(&self) -> f32 {
-        variance(&self.0) * variance(&self.1)
+    let current_points: Vec<(Point, Point)> = input
+        .lines()
+        .map(|line| {
+            bot_re
+                .captures(line)
+                .unwrap()
+                .extract::<4>()
+                .1
+                .map(|num| num.parse::<i32>().unwrap())
+        })
+        .map(|res| {
+            (
+                Point {
+                    position: res[0] as u32,
+                    velocity: res[2],
+                },
+                Point {
+                    position: res[1] as u32,
+                    velocity: res[3],
+                },
+            )
+        })
+        .collect();
+    Setup {
+        maximums: (max_x, max_y),
+        boundaries: (boundary_x, boundary_y),
+        current_points,
     }
 }
 
-fn mean(v: &[i32]) -> f32 {
-    v.iter().map(|val| *val as f32).sum::<f32>() / v.len() as f32
-}
-fn variance(v: &[i32]) -> f32 {
-    let m = mean(v);
-
-    v.iter()
-        .fold(0.0, |acc, e| acc + (*e as f32 - m) * (*e as f32 - m))
-        / (v.len() as f32 - 1.0)
+struct Setup {
+    maximums: (u32, u32),
+    boundaries: (u32, u32),
+    current_points: Vec<(Point, Point)>,
 }
 
-#[derive(PartialEq, Eq, Hash)]
-enum Corner {
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight,
+#[derive(Clone, Copy)]
+struct Point {
+    position: u32,
+    velocity: i32,
+}
+
+trait Variance {
+    fn variance(&self) -> f32;
+}
+
+trait Mean {
+    fn mean(&self) -> f32;
+}
+
+impl Point {
+    fn next(&mut self, max: u32, times: u32) {
+        let mut new_val = self.position as i32 + self.velocity * times as i32;
+        while new_val >= max as i32 {
+            new_val -= max as i32;
+        }
+        while new_val < 0 {
+            new_val += max as i32;
+        }
+        self.position = new_val as u32;
+    }
+}
+
+impl Variance for Vec<Point> {
+    fn variance(&self) -> f32 {
+        let m = self.mean();
+
+        self.iter().fold(0.0, |acc, e| {
+            acc + (e.position as f32 - m) * (e.position as f32 - m)
+        }) / (self.len() as f32 - 1.0)
+    }
+}
+
+impl Mean for Vec<Point> {
+    fn mean(&self) -> f32 {
+        self.iter().map(|val| val.position as f32).sum::<f32>() / self.len() as f32
+    }
 }
 
 #[cfg(test)]
