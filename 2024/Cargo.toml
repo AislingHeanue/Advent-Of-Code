@@ -33,3 +33,4 @@ regex = "1.11.1"
 gcd = "2.3.0"
 ndarray = "0.15.0"
 ndarray-linalg = { version = "0.16", features = ["intel-mkl-static"] }
+priority-queue = "2.1.1"
