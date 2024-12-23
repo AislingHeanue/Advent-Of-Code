@@ -70,38 +70,24 @@ pub fn part_two(input: &str) -> Option<String> {
         .map(|res| (res[0], res[1]))
         .collect::<Vec<(usize, usize)>>();
 
-    //let mut reachable = HashSet::new();
-    //for y in 0..max_y {
-    //    for x in 0..max_x {
-    //        reachable.insert((x, y));
-    //    }
-    //}
-    for i in 0..71 * 71 {
-        let sub_coords = &coords[..i];
-        let mut banned_points = HashSet::new();
-        for c in sub_coords {
-            banned_points.insert(*c);
-        }
-        //println!("{:?}", coords);
-
-        let reachable = find_can_reach(
-            banned_points,
-            max_x,
-            max_y,
-            //&mut reachable,
-            //&mut reachable,
-            (0, 0),
-            (max_x - 1, max_y - 1),
-        );
-
-        //println!("{:?}", scores);
-        if !reachable {
-            return Some(format!("{},{}", coords[i - 1].0, coords[i - 1].1));
+    let mut left = 0;
+    let mut right = coords.len();
+    while left != right {
+        let middle = (left + right) / 2;
+        if is_end_reachable(middle, max_x, max_y, coords) {
+            if left == middle {
+                left = middle + 1;
+            } else {
+                left = middle;
+            }
+        } else {
+            right = middle;
         }
     }
 
-    None
+    Some(format!("{},{}", coords[left - 1].0, coords[left - 1].1))
 }
+
 fn find_lowest_distance(
     banned: HashSet<(usize, usize)>,
     max_x: usize,
@@ -145,6 +131,16 @@ fn find_lowest_distance(
             }
         }
     }
+}
+
+fn is_end_reachable(i: usize, max_x: usize, max_y: usize, coords: &[(usize, usize)]) -> bool {
+    let sub_coords = &coords[..i];
+    let mut banned_points = HashSet::new();
+    for c in sub_coords {
+        banned_points.insert(*c);
+    }
+
+    find_can_reach(banned_points, max_x, max_y, (0, 0), (max_x - 1, max_y - 1))
 }
 
 fn find_can_reach(

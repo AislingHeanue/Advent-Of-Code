@@ -3,18 +3,23 @@ advent_of_code::solution!(22);
 use std::collections::HashMap;
 
 pub fn part_one(input: &str) -> Option<u64> {
-    let (data, _map) = setup(input);
-    Some(data.into_iter().sum())
+    let stuff = setup(input);
+    Some(stuff.final_results.into_iter().sum())
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    let (_data, map) = setup(input);
-    println!("{:?}", map.iter().max_by_key(|(_k, v)| **v).unwrap());
-    Some(*map.iter().max_by_key(|(_k, v)| **v).unwrap().1)
+    let stuff = setup(input);
+    Some(*stuff.profits.iter().max_by_key(|(_k, v)| **v).unwrap().1)
 }
 
-fn setup(input: &str) -> (Vec<u64>, HashMap<(i64, i64, i64, i64), u64>) {
-    let (vs, ms): (Vec<u64>, Vec<HashMap<(i64, i64, i64, i64), u64>>) = input
+type ProfitMap = HashMap<(i64, i64, i64, i64), u64>;
+struct SetupStuff {
+    final_results: Vec<u64>,
+    profits: HashMap<(i64, i64, i64, i64), u64>,
+}
+
+fn setup(input: &str) -> SetupStuff {
+    let (vs, ms): (Vec<u64>, Vec<ProfitMap>) = input
         .lines()
         .map(|line| line.parse::<u64>().unwrap())
         .map(|mut num| {
@@ -39,7 +44,10 @@ fn setup(input: &str) -> (Vec<u64>, HashMap<(i64, i64, i64, i64), u64>) {
         }
     }
 
-    (vs, out_m)
+    SetupStuff {
+        final_results: vs,
+        profits: out_m,
+    }
 }
 
 fn mix(first: u64, second: u64) -> u64 {
