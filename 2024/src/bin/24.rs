@@ -21,27 +21,32 @@ pub fn part_one(input: &str) -> Option<u64> {
         })
         .collect();
 
-    let mut instructions: HashSet<Instruction> = input
+    let mut instructions: HashMap<Instruction, String> = input
         .lines()
         .filter(|line| line.len() > 7)
         .map(|line| second_re.captures(line).unwrap().extract::<4>().1)
-        .map(|matches| Instruction {
-            left: matches[0].to_string(),
-            operator: Operator::from_string(matches[1]),
-            right: matches[2].to_string(),
-            output: matches[3].to_string(),
+        .map(|matches| {
+            (
+                Instruction {
+                    left: matches[0].to_string(),
+                    operator: Operator::from_string(matches[1]),
+                    right: matches[2].to_string(),
+                    output: matches[3].to_string(),
+                },
+                matches[3].to_string(),
+            )
         })
         .collect();
 
     while !instructions.is_empty() {
         let copy_instructions = instructions.clone();
-        for instruction in copy_instructions {
+        for (instruction, out_str) in copy_instructions {
             let left_state = states.get(&instruction.left);
             let right_state = states.get(&instruction.right);
             if let (Some(l), Some(r)) = (left_state, right_state) {
                 let out = instruction.operator.evaluate(*l, *r);
                 instructions.remove(&instruction);
-                states.insert(instruction.output, out);
+                states.insert(out_str, out);
             }
         }
     }
