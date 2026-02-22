@@ -1,0 +1,25 @@
+{
+  "name": "2025",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "download": "bun run index.ts download",
+    "read": "bun run index.ts read",
+    "solve": "bun run index.ts solve",
+    "test": "bun run index.ts test",
+    "all": "bun run index.ts all"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/turndown": "^5.0.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "aocjs": "^1.0.3",
+    "effect": "^3.19.19",
+    "turndown": "^7.2.2"
+  }
+}
