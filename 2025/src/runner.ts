@@ -37,13 +37,14 @@ const formatDuration = (duration: Duration.Duration): string => {
 // Run a single part and time it
 const runPart = <T>(
   partName: string,
-  solve: SolveFn<T>,
+  solve: SolveGen<T>,
   input: Input,
   part: Part
-): Effect.Effect<T | undefined, never> =>
+): Effect.Effect<T | undefined, unknown, any> =>
   Effect.gen(function* () {
     const start = performance.now()
-    const result = solve(input, part)
+    // Wrap the user's generator in Effect.gen
+    const result = yield* Effect.gen(() => solve(input, part))
     const elapsed = performance.now() - start
     const duration = Duration.millis(elapsed)
 
@@ -69,7 +70,7 @@ export interface DayResult {
 }
 
 // Run both parts of a day's solution
-export const runDay = (day: Day, solution: DaySolution): Effect.Effect<DayResult, Error> =>
+export const runDay = (day: Day, solution: DaySolution): Effect.Effect<DayResult, unknown, any> =>
   Effect.gen(function* () {
     yield* Console.log(`\n--- Day ${formatDay(day)} ---`)
 
@@ -94,7 +95,7 @@ export const registerSolution = (
 }
 
 // Run tests for a single day
-export const testDay = (day: Day, solution: DaySolution): Effect.Effect<TestResult[], never> =>
+export const testDay = (day: Day, solution: DaySolution): Effect.Effect<TestResult[], unknown, any> =>
   Effect.gen(function* () {
     const results: TestResult[] = []
 
@@ -106,7 +107,7 @@ export const testDay = (day: Day, solution: DaySolution): Effect.Effect<TestResu
     // Test Part 1
     if (solution.examples.part1) {
       const input = new Input(solution.examples.part1.input)
-      const actual = solution.solve(input, 1)
+      const actual = yield* Effect.gen(() => solution.solve(input, 1))
       const passed = actual === solution.examples.part1.expected
       results.push({ day, part: 1, passed, expected: solution.examples.part1.expected, actual })
 
@@ -120,7 +121,7 @@ export const testDay = (day: Day, solution: DaySolution): Effect.Effect<TestResu
     // Test Part 2
     if (solution.examples.part2) {
       const input = new Input(solution.examples.part2.input)
-      const actual = solution.solve(input, 2)
+      const actual = yield* Effect.gen(() => solution.solve(input, 2))
       const passed = actual === solution.examples.part2.expected
       results.push({ day, part: 2, passed, expected: solution.examples.part2.expected, actual })
 

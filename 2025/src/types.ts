@@ -1,3 +1,4 @@
+import type { Effect } from "effect"
 import type { Input } from "./input"
 import type { Day } from "./day"
 
@@ -5,8 +6,9 @@ declare global {
   // Part type
   type Part = 1 | 2
 
-  // Solution function type: solve(input, part) where part defaults to 1
-  type SolveFn<T> = (input: Input, part: Part) => T | undefined
+  // Solve function - a generator function that can yield* Effects
+  // Written as: function*(input, part) { ... yield* someEffect; return value }
+  type SolveGen<T> = (input: Input, part: Part) => Generator<any, T | undefined, any>
 
   // Example test case
   interface Example {
@@ -16,7 +18,7 @@ declare global {
 
   // Solution module structure
   interface DaySolution {
-    solve: SolveFn<unknown>
+    solve: SolveGen<unknown>
     examples?: {
       part1?: Example
       part2?: Example

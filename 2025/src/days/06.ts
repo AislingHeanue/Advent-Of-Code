@@ -1,6 +1,6 @@
 import type { Input } from "../input"
 
-export const solve = (input: Input, part: Part): number | undefined => {
+export function* solve(input: Input, part: Part) {
   if (part === 1) {
     return undefined
   } else {
