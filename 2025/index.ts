@@ -1,6 +1,6 @@
 import { Effect, Console, Match } from "effect"
 import { parseArgs } from "./src/cli"
-import { download, read } from "./src/aocjs"
+import { download, read, submit } from "./src/aocjs"
 import { runDay, testDay } from "./src/runner"
 import { getSolution, getAllSolutions } from "./src/days"
 import { allDays } from "./src/day"
@@ -22,7 +22,17 @@ const program = Effect.gen(function* () {
           yield* Console.error(`No solution found for day ${cmd.day}`)
           return
         }
-        yield* runDay(cmd.day, solution)
+        const result = yield* runDay(cmd.day, solution)
+        
+        // Submit if requested
+        if (cmd.submit) {
+          const answer = cmd.submit === 1 ? result.part1 : result.part2
+          if (answer === undefined) {
+            yield* Console.error(`Part ${cmd.submit} not implemented`)
+            return
+          }
+          yield* submit(cmd.day, cmd.submit, String(answer))
+        }
       })
     ),
     Match.tag("AllCommand", () =>

@@ -62,15 +62,23 @@ const runPart = <T>(
     return result
   })
 
+// Result from running a day (for submit)
+export interface DayResult {
+  part1: unknown
+  part2: unknown
+}
+
 // Run both parts of a day's solution
-export const runDay = (day: Day, solution: DaySolution): Effect.Effect<void, Error> =>
+export const runDay = (day: Day, solution: DaySolution): Effect.Effect<DayResult, Error> =>
   Effect.gen(function* () {
     yield* Console.log(`\n--- Day ${formatDay(day)} ---`)
 
     const input = yield* readInput(day)
 
-    yield* runPart("Part 1", solution.solve, input, 1)
-    yield* runPart("Part 2", solution.solve, input, 2)
+    const part1 = yield* runPart("Part 1", solution.solve, input, 1)
+    const part2 = yield* runPart("Part 2", solution.solve, input, 2)
+    
+    return { part1, part2 }
   })
 
 // Create the solution registry

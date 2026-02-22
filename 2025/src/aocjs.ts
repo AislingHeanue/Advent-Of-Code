@@ -84,6 +84,30 @@ const ensureDir = (filePath: string): void => {
   }
 }
 
+// Download puzzle description only
+export const downloadPuzzle = (day: Day) =>
+  Effect.gen(function* () {
+    const client = yield* createClient()
+    const year = getYear()
+    
+    // Fetch puzzle description (returns main element HTML)
+    const puzzleHtml = yield* Effect.tryPromise({
+      try: () => client.getProblem(year, day as number),
+      catch: (error) => new AocClientError({
+        message: `Failed to fetch puzzle: ${error}`
+      })
+    })
+    
+    // Clean HTML and convert to Markdown
+    const cleanedHtml = cleanPuzzleHtml(puzzleHtml)
+    const puzzleMarkdown = turndown.turndown(cleanedHtml)
+    
+    const puzzlePath = getPuzzlePath(day)
+    ensureDir(puzzlePath)
+    fs.writeFileSync(puzzlePath, puzzleMarkdown)
+    yield* Console.log(`Successfully wrote puzzle to "${puzzlePath}".`)
+  })
+
 // Download puzzle input and description
 export const download = (day: Day) =>
   Effect.gen(function* () {
@@ -103,22 +127,8 @@ export const download = (day: Day) =>
     fs.writeFileSync(inputPath, input)
     yield* Console.log(`Successfully wrote input to "${inputPath}".`)
     
-    // Fetch puzzle description (returns main element HTML)
-    const puzzleHtml = yield* Effect.tryPromise({
-      try: () => client.getProblem(year, day as number),
-      catch: (error) => new AocClientError({
-        message: `Failed to fetch puzzle: ${error}`
-      })
-    })
-    
-    // Clean HTML and convert to Markdown
-    const cleanedHtml = cleanPuzzleHtml(puzzleHtml)
-    const puzzleMarkdown = turndown.turndown(cleanedHtml)
-    
-    const puzzlePath = getPuzzlePath(day)
-    ensureDir(puzzlePath)
-    fs.writeFileSync(puzzlePath, puzzleMarkdown)
-    yield* Console.log(`Successfully wrote puzzle to "${puzzlePath}".`)
+    // Also download puzzle description
+    yield* downloadPuzzle(day)
   })
 
 // Read puzzle description (displays local file)
@@ -149,6 +159,12 @@ export const submit = (day: Day, part: 1 | 2, answer: string) =>
     
     if (success) {
       yield* Console.log(`Part ${part} answer "${answer}" was correct!`)
+      
+      // Re-download puzzle to get part 2 description after part 1 is correct
+      if (part === 1) {
+        yield* Console.log(`Downloading part 2 description...`)
+        yield* downloadPuzzle(day)
+      }
     } else {
       yield* Console.log(`Part ${part} answer "${answer}" was incorrect.`)
     }
