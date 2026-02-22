@@ -1,10 +1,7 @@
-import { Stream } from "effect";
+import { Option, Stream } from "effect";
 import type { Input } from "../input";
 
 const pattern = /\b([LR])([1-9][0-9]*)/;
-
-const R = (n: number, amount: number) => (n + amount) % 100;
-const L = (n: number, amount: number) => (n - amount) % 100;
 
 export function* solve(input: Input, part: Part) {
   // left = down
@@ -15,7 +12,9 @@ export function* solve(input: Input, part: Part) {
     Stream.runFold({ n, count: 0 }, (input, line) => {
       const match = line.match(pattern)!;
       let amount = +match[2]!;
-      const n = input.n;
+      let { n, count } = input;
+      const inputN = n;
+
       if (amount === 0) {
         return input;
       }
@@ -23,32 +22,32 @@ export function* solve(input: Input, part: Part) {
       amount -= zeros * 100;
       switch (match[1] as "L" | "R") {
         case "L":
-          input.n = n - amount;
-          if (input.n < 0) {
-            input.n += 100;
-            if (n !== 0) {
+          n -= amount;
+          if (n < 0) {
+            n += 100;
+            if (inputN !== 0) {
               zeros += 1;
             }
           }
           break;
         case "R":
-          input.n = n + amount;
-          if (input.n >= 100) {
-            input.n -= 100;
-            if (input.n !== 0) {
+          n += amount;
+          if (n >= 100) {
+            n -= 100;
+            if (n !== 0) {
               zeros += 1;
             }
           }
           break;
       }
-      if (input.n === 0) {
-        input.count += 1;
+      if (n === 0) {
+        count += 1;
       }
       if (part === 2) {
-        input.count += zeros;
+        count += zeros;
       }
 
-      return input;
+      return { n, count };
     })
   );
 
