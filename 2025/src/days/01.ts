@@ -14,17 +14,38 @@ export function* solve(input: Input, part: Part) {
   const result = yield* input.stream.pipe(
     Stream.runFold({ n, count: 0 }, (input, line) => {
       const match = line.match(pattern)!;
-      // console.log(match[1], match[2]);
+      let amount = +match[2]!;
+      const n = input.n;
+      if (amount === 0) {
+        return input;
+      }
+      let zeros = Math.floor(amount / 100);
+      amount -= zeros * 100;
       switch (match[1] as "L" | "R") {
         case "L":
-          input.n = L(input.n, +match[2]!);
+          input.n = n - amount;
+          if (input.n < 0) {
+            input.n += 100;
+            if (n !== 0) {
+              zeros += 1;
+            }
+          }
           break;
         case "R":
-          input.n = R(input.n, +match[2]!);
+          input.n = n + amount;
+          if (input.n >= 100) {
+            input.n -= 100;
+            if (input.n !== 0) {
+              zeros += 1;
+            }
+          }
           break;
       }
       if (input.n === 0) {
-        input.count++;
+        input.count += 1;
+      }
+      if (part === 2) {
+        input.count += zeros;
       }
 
       return input;
@@ -47,8 +68,21 @@ L55
 L1
 L99
 R14
-L821`,
+L82`,
       expected: 3
+    },
+    part2: {
+      input: `L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82`,
+      expected: 6
     }
     // part2: {
     //   input: `example input here`,
