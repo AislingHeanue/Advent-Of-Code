@@ -74,7 +74,6 @@ func partA(challenge *core.Input) int {
 	if Test {
 		Distances = distances
 	}
-
 	return answer
 }
 

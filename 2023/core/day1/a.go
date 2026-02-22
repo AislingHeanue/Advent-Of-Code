@@ -47,6 +47,5 @@ func solve(challenge *core.Input, b bool) int {
 		}
 		total += 10*firstNumber + lastNumber
 	}
-
 	return total
 }
