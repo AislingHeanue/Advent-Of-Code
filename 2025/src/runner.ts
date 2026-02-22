@@ -89,6 +89,7 @@ export const runDay = (
 
     const input = yield* readInput(day);
 
+    // run sequentially to test execution times accurately
     const part1 = yield* runPart("Part 1", solution.solve, input, 1);
     const part2 = yield* runPart("Part 2", solution.solve, input, 2);
 

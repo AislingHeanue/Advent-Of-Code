@@ -171,10 +171,8 @@ export const submit = (day: Day, part: 1 | 2, answer: string) =>
       yield* Console.log(`Part ${part} answer "${answer}" was correct!`);
 
       // Re-download puzzle to get part 2 description after part 1 is correct
-      if (part === 1) {
-        yield* Console.log(`Downloading part 2 description...`);
-        yield* downloadPuzzle(day);
-      }
+      yield* Console.log(`Re-downloading description...`);
+      yield* downloadPuzzle(day);
     } else {
       yield* Console.log(`Part ${part} answer "${answer}" was incorrect.`);
     }

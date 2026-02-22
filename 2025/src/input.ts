@@ -71,6 +71,10 @@ export class Input {
     return line ? line.split(delimiter) : [];
   }
 
+  streamSplit(delimiter: string | RegExp = ","): Stream.Stream<string> {
+    return Stream.fromIterable(this.firstLine(delimiter));
+  }
+
   /** Split first line by delimiter and parse as numbers */
   firstLineNumbers(delimiter: string | RegExp = ","): number[] {
     return this.firstLine(delimiter).map(Number);
