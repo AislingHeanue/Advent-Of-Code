@@ -1,11 +1,11 @@
-import { Console, Effect, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import type { Input } from "../input";
 
 export function* solve(input: Input, part: Part) {
-  const nums = part === 1 ? 2 : 12;
+  const numLength = part === 1 ? 2 : 12;
   return yield* input.stream.pipe(
     Stream.map(toNumberArray),
-    Stream.mapEffect(a => getHighest(a, nums)),
+    Stream.mapEffect(a => getHighest(a, numLength)),
     // Stream.tap(Console.log),
     Stream.runSum
   );

@@ -59,6 +59,10 @@ export class Input {
       .map(group => group.split("\n"));
   }
 
+  get streamGroups(): Stream.Stream<string>[] {
+    return this.groups.map(Stream.fromIterable);
+  }
+
   /** Get all numbers in the input (including negatives) */
   get allNumbers(): number[] {
     const matches = this.raw.match(/-?\d+/g);
