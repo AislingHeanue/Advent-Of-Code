@@ -6,9 +6,9 @@ type Point2D = { x: number; y: number };
 export function* solve(input: Input, part: Part) {
   const firstPosition = getCoords(input.lines[0]!);
   const coords = input.stream.pipe(Stream.map(getCoords));
-  const { ranges, safeRanges } =
+  const safeRanges =
     part === 1
-      ? { ranges: undefined, safeRanges: undefined }
+      ? undefined
       : yield* setupQuestion2Garbage(coords, firstPosition);
 
   const biggest = yield* Stream.cross(
@@ -16,7 +16,7 @@ export function* solve(input: Input, part: Part) {
     Stream.fromIterable(input.lines.map(getCoords))
   ).pipe(
     Stream.filter(
-      a => a[0].x < a[1].x || (a[0].x === a[0].x && a[0].y < a[1].y)
+      a => a[0].x < a[1].x || (a[0].x === a[1].x && a[0].y < a[1].y)
     ),
     Stream.map(a => [a, getArea(a)] as [[Point2D, Point2D], number]),
     Stream.runCollect,
@@ -24,37 +24,11 @@ export function* solve(input: Input, part: Part) {
     Stream.flattenChunks,
     part === 1
       ? Stream.take(1)
-      : Stream.find(a => {
-          let left = Math.min(a[0][0].x, a[0][1].x);
-          let right = Math.max(a[0][0].x, a[0][1].x);
-          let up = Math.min(a[0][0].y, a[0][1].y);
-          let down = Math.max(a[0][0].y, a[0][1].y);
-          let badness = false;
-          ranges!.xs.forEach(x => {
-            let foundASafeRange = false;
-            if (x < left || x > right || badness) {
-              return;
-            }
-            safeRanges!.get(x)!.forEach(range => {
-              if (range.max < up || range.min > down) {
-                return;
-              }
-              if (range.min <= up && range.max >= down) {
-                foundASafeRange = true;
-                return;
-              }
-            });
-            if (!foundASafeRange) {
-              badness = true;
-              return;
-            }
-          });
-          return !badness;
-        }),
+      : Stream.find(a => checkAllShaded(a[0], safeRanges!)),
     Stream.runHead,
     Effect.map(Option.getOrThrow)
   );
-  return biggest[1];
+  return biggest[1]!;
 }
 
 const pattern = /([0-9]+),([0-9]+)/;
@@ -104,8 +78,6 @@ const setupQuestion2Garbage = (
   firstPosition: Point2D
 ) =>
   Effect.gen(function* () {
-    let ranges = { xs: [], ys: [] } as { xs: number[]; ys: number[] };
-    const safeRanges = new Map<number, { min: number; max: number }[]>();
     const coordsWithNext = coords.pipe(
       Stream.zipWithNext,
       Stream.map(
@@ -130,7 +102,7 @@ const setupQuestion2Garbage = (
       Effect.map(Chunk.toArray),
       Effect.map(a => new Set(a.map(pointToString)))
     );
-    ranges = yield* coords.pipe(
+    return yield* coords.pipe(
       Stream.runFold(
         { xs: new Set<number>(), ys: new Set<number>() },
         ({ xs, ys }, { x, y }) => {
@@ -152,48 +124,69 @@ const setupQuestion2Garbage = (
       }),
       Stream.runHead,
       Effect.map(Option.getOrThrow),
-      Effect.tap(ranges => {
-        ranges!.xs.forEach(x => {
-          let inLoop = false;
-          let currentRangeStart = undefined as number | undefined;
-          let safeForThisX = [] as { min: number; max: number }[];
-          ranges!.ys.forEach((y, j) => {
-            // for each x march through the list of ys.
-            // If on the contour, always safe.
-            // If not on the contour, safe if inLoop
-            // inLoop is flipped whenever leftFacingContourTiles is encountered
-            if (leftFacingContourTiles!.has(pointToString({ x, y }))) {
-              inLoop = !inLoop;
-            }
-            if (
-              currentRangeStart === undefined &&
-              contourTiles!.has(pointToString({ x, y }))
-            ) {
-              currentRangeStart = y;
-            } else if (
-              currentRangeStart !== undefined &&
-              !contourTiles!.has(pointToString({ x, y })) &&
-              !inLoop
-            ) {
-              safeForThisX.push({
-                min: currentRangeStart,
-                max: ranges!.ys[j - 1]!
+      Effect.map(
+        ranges =>
+          new Map(
+            ranges!.xs.map(x => {
+              let inLoop = false;
+              let currentRangeStart = undefined as number | undefined;
+              let safeForThisX = [] as { min: number; max: number }[];
+              ranges!.ys.forEach((y, j) => {
+                // for each x march through the list of ys.
+                // If on the contour, always safe.
+                // If not on the contour, safe if inLoop
+                // inLoop is flipped whenever leftFacingContourTiles is encountered
+                if (leftFacingContourTiles!.has(pointToString({ x, y }))) {
+                  inLoop = !inLoop;
+                }
+                if (
+                  currentRangeStart === undefined &&
+                  contourTiles!.has(pointToString({ x, y }))
+                ) {
+                  currentRangeStart = y;
+                } else if (
+                  currentRangeStart !== undefined &&
+                  !contourTiles!.has(pointToString({ x, y })) &&
+                  !inLoop
+                ) {
+                  safeForThisX.push({
+                    min: currentRangeStart,
+                    max: ranges!.ys[j - 1]!
+                  });
+                  currentRangeStart = undefined;
+                } else if (
+                  currentRangeStart !== undefined &&
+                  y === ranges!.ys[ranges!.ys.length - 1]
+                ) {
+                  safeForThisX.push({ min: currentRangeStart, max: y });
+                  currentRangeStart = undefined;
+                }
               });
-              currentRangeStart = undefined;
-            } else if (
-              currentRangeStart !== undefined &&
-              y === ranges!.ys[ranges!.ys.length - 1]
-            ) {
-              safeForThisX.push({ min: currentRangeStart, max: y });
-              currentRangeStart = undefined;
-            }
-          });
-          safeRanges.set(x, safeForThisX);
-        });
-      })
+              return [x, safeForThisX];
+            })
+          )
+      )
     );
-    return { ranges, safeRanges };
   });
+
+const checkAllShaded = (
+  corners: [Point2D, Point2D],
+  safeRanges: Map<number, { min: number; max: number }[]>
+) => {
+  let left = Math.min(corners[0].x, corners[1].x);
+  let right = Math.max(corners[0].x, corners[1].x);
+  let up = Math.min(corners[0].y, corners[1].y);
+  let down = Math.max(corners[0].y, corners[1].y);
+  for (const [x, xRanges] of safeRanges) {
+    if (x < left || x > right) {
+      continue;
+    }
+    if (!xRanges.some(a => a.min <= up && a.max >= down)) {
+      return false;
+    }
+  }
+  return true;
+};
 
 export const solution: DaySolution = {
   solve,
