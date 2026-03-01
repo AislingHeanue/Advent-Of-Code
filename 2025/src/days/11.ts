@@ -1,9 +1,7 @@
 import { Chunk, Effect, Stream } from "effect";
 import type { Input } from "../input";
-import { memoize } from "micro-memoize";
-import { maxSafeInteger } from "effect/FastCheck";
-
 let map: Map<string, string[]>;
+let traverseCached: typeof traverse;
 
 export function* solve(input: Input, part: Part) {
   map = yield* input.stream.pipe(
@@ -12,7 +10,15 @@ export function* solve(input: Input, part: Part) {
     Effect.map(a => new Map(Chunk.toArray(a)))
   );
   const start = part === 1 ? "you" : "svr";
-  return traverseCached(start, { seenFft: false, seenDac: false }, part);
+  traverseCached = yield* Effect.cachedFunction(traverse);
+  return yield* traverseCached(
+    JSON.stringify({
+      name: start,
+      seenFft: false,
+      seenDac: false,
+      part
+    })
+  );
 }
 
 const parse = (line: string) => {
@@ -21,32 +27,31 @@ const parse = (line: string) => {
   return [name, outs] as [string, string[]];
 };
 
-const traverse = (
-  name: string,
-  { seenDac, seenFft }: { seenDac: boolean; seenFft: boolean },
-  part: Part
-): number => {
-  if (name === "out") {
-    return +((seenDac && seenFft) || part === 1);
-  }
-  if (name === "fft") {
-    seenFft = true;
-  }
-  if (name === "dac") {
-    seenDac = true;
-  }
-  return map
-    .get(name)!
-    .reduce(
-      (acc, item) => acc + traverseCached(item, { seenDac, seenFft }, part),
-      0
-    );
-};
-
-const traverseCached = memoize(traverse, {
-  maxSize: Number.MAX_SAFE_INTEGER,
-  isKeyItemEqual: "shallow"
-});
+const traverse = (data: string): Effect.Effect<number, any, any> =>
+  Effect.gen(function* () {
+    let { name, seenDac, seenFft, part } = JSON.parse(data);
+    if (name === "out") {
+      return +((seenDac && seenFft) || part === 1);
+    }
+    if (name === "fft") {
+      seenFft = true;
+    }
+    if (name === "dac") {
+      seenDac = true;
+    }
+    let total: number = 0;
+    for (const item of map.get(name)!) {
+      total += yield* traverseCached!(
+        JSON.stringify({
+          name: item,
+          seenDac,
+          seenFft,
+          part
+        })
+      );
+    }
+    return total;
+  });
 
 export const solution: DaySolution = {
   solve,
