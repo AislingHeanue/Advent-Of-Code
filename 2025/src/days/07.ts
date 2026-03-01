@@ -1,7 +1,7 @@
 import { Console, Effect, Option, Stream } from "effect";
 import type { Input } from "../input";
 
-const printing = true;
+const printing = false;
 
 export function* solve(input: Input, part: Part) {
   return yield* input.stream.pipe(
