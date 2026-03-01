@@ -21,6 +21,7 @@
     "aocjs": "^1.0.3",
     "effect": "^3.19.19",
     "javascript-lp-solver": "^1.0.3",
+    "micro-memoize": "^5.1.1",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "turndown": "^7.2.2"
