@@ -58,7 +58,7 @@ const runPart = <T>(
       yield* Console.log(
         `${partName}: ${ANSI_ITALIC}not implemented${ANSI_RESET}`
       );
-    } else {
+    } else if (result !== "skip") {
       const resultStr = String(result);
       if (resultStr.includes("\n")) {
         yield* Console.log(`${partName}: (${formatDuration(duration)})`);
